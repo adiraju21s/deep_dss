@@ -170,9 +170,9 @@ def load_map_by_val(sigma8, name="map-f1z1.fits.gz", path_to_output="../data/fla
     """
     return load_map_by_path(path_to_map(sigma8, name=name, path_to_output=path_to_output), field=field, nest=nest)
 
-# @jit(nopython=True)
-def poissonian_shot_noise(map, nside=1024, npix=12*1024*1024, pixarea=
-                          nest=True, density=0.04377, density_0 = 0.04377, bias=1.54, normalize=True):
-    x = np.empty(map.shape)
-    for i in range(hp.nside2npix(nside)):
-        x[i] = np.random.poisson()
+# # @jit(nopython=True)
+# def poissonian_shot_noise(map, nside=1024, npix=12*1024*1024, pixarea=
+#                           nest=True, density=0.04377, density_0 = 0.04377, bias=1.54, normalize=True):
+#     x = np.empty(map.shape)
+#     for i in range(hp.nside2npix(nside)):
+#         x[i] = np.random.poisson()
