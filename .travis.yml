@@ -20,7 +20,7 @@ install:
 
   # Replace dep1 dep2 ... with your dependencies
   - conda config --append channels conda-forge
-  - conda create env -n test-environment -f requirements.yml
+  - conda env create -n test-environment -f requirements.yml
   - conda activate test-environment
   - python setup.py install
 script:
