@@ -1,0 +1,33 @@
+language: python
+python:
+- '3.6'
+install:
+  - sudo apt update
+  # We do this conditionally because it saves us some downloading if the
+  # version is the same.
+  - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
+      wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh;
+    else
+      wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
+    fi
+  - bash miniconda.sh -b -p $HOME/miniconda
+  - source "$HOME/miniconda/etc/profile.d/conda.sh"
+  - hash -r
+  - conda config --set always_yes yes --set changeps1 no
+  - conda update -q conda
+  # Useful for debugging any issues with conda
+  - conda info -a
+
+  # Replace dep1 dep2 ... with your dependencies
+  - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION --file requirements.txt
+  - conda activate test-environment
+  - python setup.py install
+script:
+- pip install coverage==4.5.4
+- pip install python-coveralls
+- py.test
+after_success:
+- coveralls
+#deploy:
+#  password:
+#    secure: Bjec6QpluPYQ31eqjmL0sV9+5nfDLkR7gnGM8aSe9/N+jRXRFqqsoycj9uj4+qzY6UlzVf4sK9MbWWDAMyVKV9xTIXVqrrRC88JrF9r4Z8aXf0WaYQE0VUcZpJ0tqpMU1bPjLX5/7Q+r50Goms9yUTGiGMYbJcfGV45is4v/ql4fv7cUq5fvsORAi1oiHbI4VOaszbdBxfUBsChy7Wn9jgUmMYtOot52v1hmeDnzpQ27eb7hjyHizjQnTNkTRhU3uYO4ui/VYCZNMKmpMF4X934vT2cHTppRm3AAUX/Pp9mi0uQgVrCcExkhuSrlEisHgTst646QKzFMiZsltKINsyIkn1MY/RD4GH6AqRmBzMJiipeTra/ejr3mKnD1aGurHlJ8Jv5gGPvLthjWEhXR/+uiLb8HL91LENgnC6Ov8XdPYrHvWr+t+a9b7pSCFHhuMpV7QCNRgFPOLvR06QLONg2nGri9C5ye8T1QR//kmPJD0ipND3tAxsO7KAogW9o4FhcIlOmyexFGWSXRSfoQUkCgJ4W/+fcojPJ/rp1+VZz4GQ42rRkEu4mM0RVVceJxr4P/k9DF+P3FPshk3BzDqeulZW7SLPiBmdiMBc8OO2XY4HSCCyEHIxwNSpbKeFQmskCoPVPVwreqwXV/3L4h7j71G5UfVyGVNO6TG9sXo6E=
