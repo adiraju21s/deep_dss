@@ -3,7 +3,7 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - appnope=0.1.0
+#  - appnope=0.1.0
   - attrs=19.3.0
   - backcall=0.2.0
   - bzip2=1.0.8
@@ -39,7 +39,7 @@ dependencies:
   - libcxx=10.0.0
   - libedit=3.1.20191231
   - libffi=3.2.1
-  - libgfortran=4.0.0
+#  - libgfortran=4.0.0
   - libiconv=1.15
   - liblapack=3.8.0
   - libllvm9=9.0.1
