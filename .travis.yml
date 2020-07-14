@@ -22,7 +22,7 @@ install:
   - conda config --append channels conda-forge
   - conda env create -n test-environment -f requirements.yml
   - conda activate test-environment
-  - python setup.py install
+  - python setup.py install --user
 script:
 - pip install coverage==4.5.4
 - pip install python-coveralls
