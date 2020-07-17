@@ -22,7 +22,7 @@ def set_constants():
     bias = 1.54
     density_m = 0.04377
     density_kg = 10
-    ellip_sigma - 0.25
+    ellip_sigma = 0.25
     return nside, npix, pixel_area, order, bias, density_m, density_kg, ellip_sigma
 
 
