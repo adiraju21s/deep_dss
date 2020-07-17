@@ -2,6 +2,31 @@ import numpy as np
 import healpy as hp
 import pandas as pd
 from numba import jit
+from sklearn.utils import shuffle
+
+from deepsphere import experiment_helper
+
+
+# Constants
+
+
+def set_constants():
+    """
+    Sets constants for future functions (especially accelerated ones)
+    :return: NSIDE, NPIX, PIXEL_AREA (in arcmin^2), ORDER, BIAS, DENSITY_M, DENSITY_KG and ELLIP_SIGMA
+    """
+    nside = 1024
+    npix = hp.nside2npix(nside)
+    pixel_area = hp.nside2pixarea(nside, degrees=True) * 3600
+    order = 2
+    bias = 1.54
+    density_m = 0.04377
+    density_kg = 10
+    ellip_sigma - 0.25
+    return nside, npix, pixel_area, order, bias, density_m, density_kg, ellip_sigma
+
+
+(NSIDE, NPIX, PIXEL_AREA, ORDER, BIAS, DENSITY_M, DENSITY_KG, ELLIP_SIGMA) = set_constants()
 
 
 # C(l) helper functions
@@ -165,14 +190,201 @@ def load_map_by_val(sigma8, name="map-f1z1.fits.gz", path_to_output="../data/fla
     :param name: name of the map
     :param path_to_output: relative path to the FLASK output directory
     :param field: field of the map (for lensing maps with multiple fields)
-    :param nest: True for NEST pixellization, False for RING
+    :param nest: True for NEST pixelization, False for RING
     :return: Numpy array with map
     """
     return load_map_by_path(path_to_map(sigma8, name=name, path_to_output=path_to_output), field=field, nest=nest)
 
-# @jit(nopython=True)
-# def accelerated_poissonian_shot_noise(map, nside=1024, npix=12*1024*1024, pixarea=
-#                           nest=True, density=0.04377, density_0 = 0.04377, bias=1.54, normalize=True):
-#     x = np.empty(map.shape)
-#     for i in range(hp.nside2npix(nside)):
-#         x[i] = np.random.poisson()
+
+@jit(nopython=True)
+def accelerated_poissonian_shot_noise(m, npix=NPIX, pixarea=PIXEL_AREA,
+                                      nest=True, density=DENSITY_M, density_0=DENSITY_M, bias=BIAS, normalize=True):
+    """
+    Returns new version of input map with a specified level of Poissonian shot noise applied.
+    :param m: FLASK output map of galaxy density contrast, $\\delta_g$
+    :param npix: Number of pixels in map
+    :param pixarea: Area of each pixel, in arcmin^2
+    :param nest: True if "NEST" pixelization, False if "RING"
+    :param density: Tracer galaxy density, in arcmin^2, to use for noise application
+    :param density_0: Baseline galaxy density, in arcmin^2, to scale distribution by
+    :param bias: Linear galaxy-matter bias
+    :param normalize: True if resulting noise should be made to reflect a linear galaxy-matter bias of 1
+    :return: A noisy Poisson-sampled output map
+    """
+    x = np.empty(m.shape)
+    for i in range(npix):
+        if normalize:
+            x[i] = (density / density_0) * np.random.poisson(density * pixarea * (1 + m[i] / bias))
+        else:
+            x[i] = (density / density_0) * np.random.poisson(density * pixarea(1 + m[i]))
+    return x
+
+
+def poisson_map_by_val(sigma8, name="map-f1z1.fits.gz", path_to_output="../data/flask/output/", field=0, nest=True,
+                       npix=NPIX, pixarea=PIXEL_AREA, density=DENSITY_M, density_0=DENSITY_M,
+                       bias=BIAS, normalize=True):
+    """
+    Loads galaxy density contrast map for a given $\\sigma_8$ and applies Poissonian shot noise
+    :param sigma8: Value of $\\sigma_8$
+    :param name: name of the map
+    :param path_to_output: relative path to the FLASK output directory
+    :param field: field of the map (for lensing maps with multiple fields)
+    :param nest: True for NEST pixellization, False for RING
+    :return: Numpy array with map
+    :param npix: Number of pixels in map
+    :param pixarea: Area of each pixel, in arcmin^2
+    :param nest: True if "NEST" pixelization, False if "RING"
+    :param density: Tracer galaxy density, in arcmin^2, to use for noise application
+    :param density_0: Baseline galaxy density, in arcmin^2, to scale distribution by
+    :param bias: Linear galaxy-matter bias
+    :param normalize: True if resulting noise should be made to reflect a linear galaxy-matter bias of 1
+    :return: A noisy Poisson-sampled output map
+    """
+    return accelerated_poissonian_shot_noise(
+        load_map_by_val(sigma8, name=name, path_to_output=path_to_output, field=field, nest=nest),
+        npix=npix, pixarea=pixarea, nest=nest, density=density, density_0=density_0, bias=bias,
+        normalize=normalize)
+
+
+def split_map(m, order=ORDER, nest=True):
+    """
+    Returns Numpy array of partial-sky Healpix realizations split from an input full-sky map
+    :param m: Full-sky Healpix map
+    :param order: ORDER giving the number of maps to split into (12*ORDER**2)
+    :param nest: True if "NEST" pixelization, False if "RING"
+    :return: Numpy array of split maps
+    """
+    return experiment_helper.hp_split(m, order, nest)
+
+
+def split_poisson_map_by_val(sigma8, name="map-f1z1.fits.gz", path_to_output="../data/flask/output/", field=0,
+                             nest=True, npix=NPIX, pixarea=PIXEL_AREA, density=DENSITY_M, density_0=DENSITY_M,
+                             bias=BIAS, normalize=True, order=ORDER):
+    """
+    Generates partial-sky maps with applied Poissonian shot noise for a given $\\sigma_8$
+    :param sigma8: Value of $\\sigma_8$
+    :param name: name of the map
+    :param path_to_output: relative path to the FLASK output directory
+    :param field: field of the map (for lensing maps with multiple fields)
+    :param nest: True for NEST pixellization, False for RING
+    :return: Numpy array with map
+    :param npix: Number of pixels in map
+    :param pixarea: Area of each pixel, in arcmin^2
+    :param nest: True if "NEST" pixelization, False if "RING"
+    :param density: Tracer galaxy density, in arcmin^2, to use for noise application
+    :param density_0: Baseline galaxy density, in arcmin^2, to scale distribution by
+    :param bias: Linear galaxy-matter bias
+    :param normalize: True if resulting noise should be made to reflect a linear galaxy-matter bias of 1
+    :param order: ORDER giving the number of maps to split into (12*ORDER**2)
+    :return: Numpy array of split, (rescaled) Poisson-sampled maps
+    """
+    return split_map(poisson_map_by_val(sigma8, name=name, path_to_output=path_to_output, field=field, nest=nest,
+                                        npix=npix, pixarea=pixarea, density=density, density_0=density_0,
+                                        bias=bias, normalize=normalize), order=order, nest=nest)
+
+
+def split_poisson_maps_by_vals(sigma8s, name="map-f1z1.fits.gz", path_to_output="../data/flask/output/", field=0,
+                               nest=True, npix=NPIX, pixarea=PIXEL_AREA, density=DENSITY_M, density_0=DENSITY_M,
+                               bias=BIAS, normalize=True, order=ORDER, scramble=False, ground_truths=True):
+    """
+    Generates stacked array of partial-sky Poisson-sampled maps for a list of $\\sigma_8$ values
+    :param sigma8s: List of $\\sigma_8$ values
+    :param name: name of the map
+    :param path_to_output: relative path to the FLASK output directory
+    :param field: field of the map (for lensing maps with multiple fields)
+    :param nest: True for NEST pixellization, False for RING
+    :return: Numpy array with map
+    :param npix: Number of pixels in map
+    :param pixarea: Area of each pixel, in arcmin^2
+    :param nest: True if "NEST" pixelization, False if "RING"
+    :param density: Tracer galaxy density, in arcmin^2, to use for noise application
+    :param density_0: Baseline galaxy density, in arcmin^2, to scale distribution by
+    :param bias: Linear galaxy-matter bias
+    :param normalize: True if resulting noise should be made to reflect a linear galaxy-matter bias of 1
+    :param order: ORDER giving the number of maps to split into (12*ORDER**2)
+    :param scramble: If True, randomly scrambles the maps out of order
+    :param ground_truths: True if corresponding labels should be returned as well
+    :return: Dictionary of maps and labels if ground_truths=True,
+        stacked Numpy array of split, (rescaled) Poisson-sampled maps otherwise
+    """
+    x = np.empty((0, npix / (12 * order * order)))
+    for sigma8 in sigma8s:
+        m = split_poisson_map_by_val(sigma8, name=name, path_to_output=path_to_output, field=field,
+                                     nest=nest, npix=npix, pixarea=pixarea, density=density, density_0=density_0,
+                                     bias=bias, normalize=normalize, order=order)
+        x = np.vstack((x, m))
+    x = np.reshape(x, (len(sigma8s) * 12 * order * order, npix / (12 * order * order), 1))
+    if ground_truths:
+        y = np.zeros(len(sigma8s) * 12 * order * order)
+        for i in range(len(sigma8s)):
+            y[i * 12 * order * order:(i * 12 * order * order + 12 * order * order)] = sigma8s[i]
+        y = np.reshape(y, (len(sigma8s) * 12 * order * order, 1))
+        if scramble:
+            (x, y) = shuffle(x, y, random_state=0)
+        return {"x": x, "y": y}
+    if scramble:
+        x = shuffle(x, random_state=0)
+    return x
+
+
+def split_poisson_maps_by_dataset(dataset, name="map-f1z1.fits.gz", path_to_output="../data/flask/output/", field=0,
+                                  nest=True, npix=NPIX, pixarea=PIXEL_AREA, density=DENSITY_M, density_0=DENSITY_M,
+                                  bias=BIAS, normalize=True, order=ORDER, scramble=False, ground_truths=True):
+    """
+    Generates stacked array of partial-sky Poisson-sampled maps for a given data set
+    :param dataset: String name of data-set to be used
+    :param name: name of the map
+    :param path_to_output: relative path to the FLASK output directory
+    :param field: field of the map (for lensing maps with multiple fields)
+    :param nest: True for NEST pixelization, False for RING
+    :return: Numpy array with map
+    :param npix: Number of pixels in map
+    :param pixarea: Area of each pixel, in arcmin^2
+    :param nest: True if "NEST" pixelization, False if "RING"
+    :param density: Tracer galaxy density, in arcmin^2, to use for noise application
+    :param density_0: Baseline galaxy density, in arcmin^2, to scale distribution by
+    :param bias: Linear galaxy-matter bias
+    :param normalize: True if resulting noise should be made to reflect a linear galaxy-matter bias of 1
+    :param order: ORDER giving the number of maps to split into (12*ORDER**2)
+    :param scramble: If True, randomly scrambles the maps out of order
+    :param ground_truths: True if corresponding labels should be returned as well
+    :return: Stacked Numpy array of split, (rescaled) Poisson-sampled maps
+    """
+    return split_poisson_maps_by_vals(cosmologies_list(dataset), name=name, path_to_output=path_to_output, field=field,
+                                      nest=nest, npix=npix, pixarea=pixarea, density=density, density_0=density_0,
+                                      bias=bias, normalize=normalize, order=order, scramble=scramble,
+                                      ground_truths=ground_truths)
+
+
+def split_poisson_maps_by_datasets(val=False, name="map-f1z1.fits.gz", path_to_output="../data/flask/output/", field=0,
+                                   nest=True, npix=NPIX, pixarea=PIXEL_AREA, density=DENSITY_M, density_0=DENSITY_M,
+                                   bias=BIAS, normalize=True, order=ORDER, scramble=False, ground_truths=True):
+    """
+    Returns a data dictionary containing Poisson-sampled maps for each data-set
+    :param val: If True, validation set is included in dataset_names()
+    :param name: name of the map
+    :param path_to_output: relative path to the FLASK output directory
+    :param field: field of the map (for lensing maps with multiple fields)
+    :param nest: True for NEST pixelization, False for RING
+    :return: Numpy array with map
+    :param npix: Number of pixels in map
+    :param pixarea: Area of each pixel, in arcmin^2
+    :param nest: True if "NEST" pixelization, False if "RING"
+    :param density: Tracer galaxy density, in arcmin^2, to use for noise application
+    :param density_0: Baseline galaxy density, in arcmin^2, to scale distribution by
+    :param bias: Linear galaxy-matter bias
+    :param normalize: True if resulting noise should be made to reflect a linear galaxy-matter bias of 1
+    :param order: ORDER giving the number of maps to split into (12*ORDER**2)
+    :param scramble: If True, randomly scrambles the maps out of order
+    :param ground_truths: True if corresponding labels should be returned as well
+    :return: Dictionary, each value of which is a stacked Numpy array of split, (rescaled) Poisson-sampled maps
+    """
+    data = {}
+    for dataset in dataset_names(val=val):
+        data[dataset] = split_poisson_maps_by_dataset(dataset=dataset, name=name, path_to_output=path_to_output,
+                                                      field=field,
+                                                      nest=nest, npix=npix, pixarea=pixarea, density=density,
+                                                      density_0=density_0,
+                                                      bias=bias, normalize=normalize, order=order, scramble=scramble,
+                                                      ground_truths=ground_truths)
+    return data
