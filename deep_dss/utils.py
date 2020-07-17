@@ -16,7 +16,7 @@ def set_constants():
     :return: NSIDE, NPIX, PIXEL_AREA (in arcmin^2), ORDER, BIAS, DENSITY_M, DENSITY_KG and ELLIP_SIGMA
     """
     nside = 1024
-    npix = hp.nside2npix(nside)
+    npix = int(hp.nside2npix(nside))
     pixel_area = hp.nside2pixarea(nside, degrees=True) * 3600
     order = 2
     bias = 1.54
