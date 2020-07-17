@@ -16,7 +16,7 @@ def set_constants():
     :return: NSIDE, NPIX, PIXEL_AREA (in arcmin^2), ORDER, BIAS, DENSITY_M, DENSITY_KG and ELLIP_SIGMA
     """
     nside = 1024
-    npix = int(hp.nside2npix(nside))
+    npix = hp.nside2npix(nside)
     pixel_area = hp.nside2pixarea(nside, degrees=True) * 3600
     order = 2
     bias = 1.54
@@ -307,13 +307,13 @@ def split_poisson_maps_by_vals(sigma8s, name="map-f1z1.fits.gz", path_to_output=
     :return: Dictionary of maps and labels if ground_truths=True,
         stacked Numpy array of split, (rescaled) Poisson-sampled maps otherwise
     """
-    x = np.empty((0, npix / (12 * order * order)))
+    x = np.empty((0, npix // (12 * order * order)))
     for sigma8 in sigma8s:
         m = split_poisson_map_by_val(sigma8, name=name, path_to_output=path_to_output, field=field,
                                      nest=nest, npix=npix, pixarea=pixarea, density=density, density_0=density_0,
                                      bias=bias, normalize=normalize, order=order)
         x = np.vstack((x, m))
-    x = np.reshape(x, (len(sigma8s) * 12 * order * order, npix / (12 * order * order), 1))
+    x = np.reshape(x, (len(sigma8s) * 12 * order * order, npix // (12 * order * order), 1))
     if ground_truths:
         y = np.zeros(len(sigma8s) * 12 * order * order)
         for i in range(len(sigma8s)):
