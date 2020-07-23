@@ -444,3 +444,20 @@ def split_poisson_maps_by_datasets(val=False, name="map-f1z1.fits.gz", path_to_o
                                                       scramble=scramble,
                                                       ground_truths=ground_truths)
     return data
+
+
+def list_tracer_noise_scales(handpicked=False, num=6, noiseless=True):
+    """
+    Generate a list of noise levels (tracer galaxy densities in arcmin^2) at which to evaluate model predictions.
+    :param noiseless: If True, includes noiseless case.
+    :param num: Number of noise levels (exluding noiseless case) to generate
+    :param handpicked: If True, return handpicked list of noise-levels. Use geomspace vals if false
+    :return: A list of noise levels (-1 for noiseless)
+    """
+    if handpicked:
+        if noiseless:
+            return np.array([0.04377, 0.12, 0.3, 4, 50, -1])
+        return np.array([0.04377, 0.12, 1, 10, 100, 1000])
+    if noiseless:
+        return np.append(np.geomspace(0.04377, 100, num=num), -1)
+    return np.geomspace(0.04377, 1000, num=num)

@@ -7,14 +7,76 @@ import tensorflow as tf
 
 # Model parameters
 
-def params_v8(verbose=True):
+def params_v2(verbose=True, path_to_checkpoints="../checkpoints/"):
     """
-    Returns params dict for v8 architecture
+    Returns params dict for v2 ("winning") architecture
+    :param path_to_checkpoints: Path to checkpoints directory (include '/'!)
     :param verbose: Outputs information on model configuration
     :return: Params dict for DeepSphere model
     """
     params = dict()
-    params['dir_name'] = "flask-101-v8"
+    params['dir_name'] = path_to_checkpoints + "flask-101-v2"
+
+    # Types of layers.
+    params['conv'] = 'chebyshev5'  # Graph convolution: chebyshev5 or monomials.
+    params['pool'] = 'max'  # Pooling: max or average.
+    params['activation'] = 'relu'  # Non-linearity: relu, elu, leaky_relu, softmax, tanh, etc.
+    params['statistics'] = 'mean'  # Statistics (for invariance): None, mean, var, meanvar, hist.
+
+    # Architecture.
+    params['F'] = [16, 32, 64, 64, 1]  # Graph convolutional layers: number of feature maps.
+    params['K'] = [5] * 5  # Polynomial orders.
+    params['batch_norm'] = [True, True, True, True, False]  # Batch normalization.
+    params['M'] = []  # Fully connected layers: output dimensionalities.
+    params['input_channel'] = 1  # Two channels (spherical maps) per sample.
+
+    # Pooling.
+    nsides = [NSIDE, NSIDE // 2, NSIDE // 4, NSIDE // 8, NSIDE // 16, NSIDE // 16]
+    params['nsides'] = nsides
+    params['indexes'] = utils.nside2indexes(nsides, ORDER)
+    #     params['batch_norm_full'] = []
+
+    # Regularization (to prevent over-fitting).
+    params[
+        'regularization'] = 0  # Amount of L2 regularization over the weights (will be divided by the number of
+    # weights).
+    params['dropout'] = 1  # Percentage of neurons to keep.
+
+    # Training.
+    params['num_epochs'] = 20  # Number of passes through the training data.
+    params[
+        'batch_size'] = 16 * ORDER ** 2  # Constant quantity of information (#pixels) per step (invariant to sample
+    # size).
+
+    # Optimization: learning rate schedule and optimizer.
+    params['scheduler'] = lambda step: tf.train.exponential_decay(1.99e-4, step, decay_steps=1, decay_rate=0.999)
+    params['optimizer'] = lambda lr: tf.train.AdamOptimizer(lr, beta1=0.9, beta2=0.999, epsilon=1e-8)
+    params['loss'] = 'l1'  # Regression loss.
+
+    # Number of model evaluations during training (influence training time).
+    params['eval_frequency'] = 15
+
+    if verbose:
+        print('#sides: {}'.format(nsides))
+        print('#pixels: {}'.format([(nside // ORDER) ** 2 for nside in nsides]))
+        # Number of pixels on the full sphere: 12 * nsides**2.
+
+        print('#samples per batch: {}'.format(params['batch_size']))
+        print('=> #pixels per batch (input): {:,}'.format(params['batch_size'] * (NSIDE // ORDER) ** 2))
+        print('=> #pixels for training (input): {:,}'.format(params['num_epochs'] * 422 * (NSIDE // ORDER) ** 2))
+
+    return params
+
+
+def params_v8(verbose=True, path_to_checkpoints="../checkpoints/"):
+    """
+    Returns params dict for v8 architecture
+    :param verbose: Outputs information on model configuration
+    :param path_to_checkpoints: Path to checkpoints directory (include '/'!)
+    :return: Params dict for DeepSphere model
+    """
+    params = dict()
+    params['dir_name'] = path_to_checkpoints + "flask-101-v8"
 
     # Types of layers.
     params['conv'] = 'chebyshev5'  # Graph convolution: chebyshev5 or monomials.
@@ -66,14 +128,15 @@ def params_v8(verbose=True):
     return params
 
 
-def params_v9(verbose=True):
+def params_v9(verbose=True, path_to_checkpoints="../checkpoints/"):
     """
     Returns params dict for v9 architecture
     :param verbose: Outputs information on model configuration
+    :param path_to_checkpoints: Path to checkpoints directory (include '/'!)
     :return: Params dict for DeepSphere model
     """
     params = dict()
-    params['dir_name'] = "flask-101-v9"
+    params['dir_name'] = path_to_checkpoints + "flask-101-v9"
 
     # Types of layers.
     params['conv'] = 'chebyshev5'  # Graph convolution: chebyshev5 or monomials.
@@ -125,14 +188,15 @@ def params_v9(verbose=True):
     return params
 
 
-def params_v10(verbose=True):
+def params_v10(verbose=True, path_to_checkpoints="../checkpoints/"):
     """
     Returns params dict for v10 architecture
     :param verbose: Outputs information on model configuration
+    :param path_to_checkpoints: Path to checkpoints directory (include '/'!)
     :return: Params dict for DeepSphere model
     """
     params = dict()
-    params['dir_name'] = "flask-101-v10"
+    params['dir_name'] = path_to_checkpoints + "flask-101-v10"
 
     # Types of layers.
     params['conv'] = 'chebyshev5'  # Graph convolution: chebyshev5 or monomials.
@@ -184,29 +248,38 @@ def params_v10(verbose=True):
     return params
 
 
-def params_by_architecture(architecture, verbose=True):
+def params_by_architecture(architecture, verbose=True, path_to_checkpoints="../checkpoints/"):
     """
     Returns params dict for a specified architecture
     :param architecture: Architecture name string
     :param verbose: Outputs information on model configuration
+    :param path_to_checkpoints: Path to checkpoints directory (include '/'!)
     :return: Params dict for DeepSphere model
     """
+    if architecture == "v2":
+        return params_v2(verbose=verbose, path_to_checkpoints=path_to_checkpoints)
     if architecture == "v8":
-        return params_v8(verbose=verbose)
+        return params_v8(verbose=verbose, path_to_checkpoints=path_to_checkpoints)
     if architecture == "v9":
-        return params_v9(verbose=verbose)
+        return params_v9(verbose=verbose, path_to_checkpoints=path_to_checkpoints)
     if architecture == "v10":
-        return params_v10(verbose=verbose)
+        return params_v10(verbose=verbose, path_to_checkpoints=path_to_checkpoints)
+    if architecture == "winning":
+        return params_v2(verbose=verbose, path_to_checkpoints=path_to_checkpoints)
+    if architecture == "two-output":
+        return params_v8(verbose=verbose, path_to_checkpoints=path_to_checkpoints)
     print("Error: Architecture {} not found".format(architecture))
 
 
 # Models
 
-def model_by_architecture(architecture, verbose=True):
+def model_by_architecture(architecture, verbose=True, path_to_checkpoints="../checkpoints/"):
     """
     Returns DeepSphere model object for a specified architecture
     :param architecture: Architecture name string
     :param verbose: Outputs information on model configuration
+    :param path_to_checkpoints: Path to checkpoints directory (include '/'!)
     :return: DeepSphere model object
     """
-    return models.deepsphere(**params_by_architecture(architecture, verbose=verbose))
+    return models.deepsphere(
+        **params_by_architecture(architecture, verbose=verbose, path_to_checkpoints=path_to_checkpoints))
