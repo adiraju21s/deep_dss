@@ -197,6 +197,32 @@ def load_map_by_val(sigma8, name="map-f1z1.fits.gz", path_to_output="../data/fla
 
 
 @jit(nopython=True)
+def accelerated_noiseless(m, npix=NPIX, pixarea=PIXEL_AREA,
+                          density=DENSITY_M, density_0=DENSITY_M, multiplier=250.0, bias=BIAS,
+                          normalize=True):
+    """
+    Returns new version of input map without any Poissonian shot noise applied.
+    :param m: FLASK output map of galaxy density contrast, $\\delta_g$
+    :param npix: Number of pixels in map
+    :param pixarea: Area of each pixel, in arcmin^2
+    :param nest: True if "NEST" pixelization, False if "RING"
+    :param density: Tracer galaxy density, in arcmin^2, to use for noise application
+    :param density_0: Baseline galaxy density, in arcmin^2, to scale distribution by
+    :param multiplier: Scale factor used to amplify noise distribution
+    :param bias: Linear galaxy-matter bias
+    :param normalize: True if resulting noise should be made to reflect a linear galaxy-matter bias of 1
+    :return: A noisy Poisson-sampled output map
+    """
+    x = np.empty(m.shape)
+    for i in range(npix):
+        if normalize:
+            x[i] = multiplier * (density_0 / density) * (density * pixarea * (1 + m[i] / bias))
+        else:
+            x[i] = multiplier * (density_0 / density) * (density * pixarea * (1 + m[i]))
+    return x
+
+
+@jit(nopython=True)
 def accelerated_poissonian_shot_noise(m, npix=NPIX, pixarea=PIXEL_AREA,
                                       density=DENSITY_M, density_0=DENSITY_M, multiplier=250.0, bias=BIAS,
                                       normalize=True):
@@ -224,7 +250,7 @@ def accelerated_poissonian_shot_noise(m, npix=NPIX, pixarea=PIXEL_AREA,
 
 def poisson_map_by_val(sigma8, name="map-f1z1.fits.gz", path_to_output="../data/flask/output/", field=0, nest=True,
                        npix=NPIX, pixarea=PIXEL_AREA, density=DENSITY_M, density_0=DENSITY_M, multiplier=250.0,
-                       bias=BIAS, normalize=True):
+                       bias=BIAS, normalize=True, noiseless=False):
     """
     Loads galaxy density contrast map for a given $\\sigma_8$ and applies Poissonian shot noise
     :param sigma8: Value of $\\sigma_8$
@@ -241,8 +267,14 @@ def poisson_map_by_val(sigma8, name="map-f1z1.fits.gz", path_to_output="../data/
     :param multiplier: Scale factor used to amplify noise distribution
     :param bias: Linear galaxy-matter bias
     :param normalize: True if resulting noise should be made to reflect a linear galaxy-matter bias of 1
+    :param noiseless: Does not take Poisson draw if True
     :return: A noisy Poisson-sampled output map
     """
+    if noiseless:
+        return accelerated_noiseless(
+            load_map_by_val(sigma8, name=name, path_to_output=path_to_output, field=field, nest=nest),
+            npix=npix, pixarea=pixarea, density=density, density_0=density_0, multiplier=multiplier, bias=bias,
+            normalize=normalize)
     return accelerated_poissonian_shot_noise(
         load_map_by_val(sigma8, name=name, path_to_output=path_to_output, field=field, nest=nest),
         npix=npix, pixarea=pixarea, density=density, density_0=density_0, multiplier=multiplier, bias=bias,
@@ -263,7 +295,7 @@ def split_map(m, order=ORDER, nest=True):
 def split_poisson_map_by_val(sigma8, name="map-f1z1.fits.gz", path_to_output="../data/flask/output/", field=0,
                              nest=True, npix=NPIX, pixarea=PIXEL_AREA, density=DENSITY_M, density_0=DENSITY_M,
                              multiplier=250.0,
-                             bias=BIAS, normalize=True, order=ORDER):
+                             bias=BIAS, normalize=True, order=ORDER, noiseless=False):
     """
     Generates partial-sky maps with applied Poissonian shot noise for a given $\\sigma_8$
     :param sigma8: Value of $\\sigma_8$
@@ -281,18 +313,20 @@ def split_poisson_map_by_val(sigma8, name="map-f1z1.fits.gz", path_to_output="..
     :param bias: Linear galaxy-matter bias
     :param normalize: True if resulting noise should be made to reflect a linear galaxy-matter bias of 1
     :param order: ORDER giving the number of maps to split into (12*ORDER**2)
+    :param noiseless: Does not take Poisson draw if True
     :return: Numpy array of split, (rescaled) Poisson-sampled maps
     """
     return split_map(poisson_map_by_val(sigma8, name=name, path_to_output=path_to_output, field=field, nest=nest,
                                         npix=npix, pixarea=pixarea, density=density, density_0=density_0,
                                         multiplier=multiplier,
-                                        bias=bias, normalize=normalize), order=order, nest=nest)
+                                        bias=bias, normalize=normalize, noiseless=noiseless), order=order, nest=nest)
 
 
 def split_poisson_maps_by_vals(sigma8s, name="map-f1z1.fits.gz", path_to_output="../data/flask/output/", field=0,
                                nest=True, npix=NPIX, pixarea=PIXEL_AREA, density=DENSITY_M, density_0=DENSITY_M,
                                multiplier=250.0,
-                               bias=BIAS, normalize=True, order=ORDER, scramble=False, ground_truths=True):
+                               bias=BIAS, normalize=True, noiseless=False, order=ORDER, scramble=False,
+                               ground_truths=True):
     """
     Generates stacked array of partial-sky Poisson-sampled maps for a list of $\\sigma_8$ values
     :param sigma8s: List of $\\sigma_8$ values
@@ -309,6 +343,7 @@ def split_poisson_maps_by_vals(sigma8s, name="map-f1z1.fits.gz", path_to_output=
     :param multiplier: Scale factor used to amplify noise distribution
     :param bias: Linear galaxy-matter bias
     :param normalize: True if resulting noise should be made to reflect a linear galaxy-matter bias of 1
+    :param noiseless: Does not take Poisson draw if True
     :param order: ORDER giving the number of maps to split into (12*ORDER**2)
     :param scramble: If True, randomly scrambles the maps out of order
     :param ground_truths: True if corresponding labels should be returned as well
@@ -320,7 +355,7 @@ def split_poisson_maps_by_vals(sigma8s, name="map-f1z1.fits.gz", path_to_output=
         m = split_poisson_map_by_val(sigma8, name=name, path_to_output=path_to_output, field=field,
                                      nest=nest, npix=npix, pixarea=pixarea, density=density, density_0=density_0,
                                      multiplier=multiplier,
-                                     bias=bias, normalize=normalize, order=order)
+                                     bias=bias, normalize=normalize, noiseless=noiseless, order=order)
         x = np.vstack((x, m))
     x = np.reshape(x, (len(sigma8s) * 12 * order * order, npix // (12 * order * order), 1))
     if ground_truths:
@@ -339,7 +374,8 @@ def split_poisson_maps_by_vals(sigma8s, name="map-f1z1.fits.gz", path_to_output=
 def split_poisson_maps_by_dataset(dataset, name="map-f1z1.fits.gz", path_to_output="../data/flask/output/", field=0,
                                   nest=True, npix=NPIX, pixarea=PIXEL_AREA, density=DENSITY_M, density_0=DENSITY_M,
                                   multiplier=250.0,
-                                  bias=BIAS, normalize=True, order=ORDER, scramble=False, ground_truths=True):
+                                  bias=BIAS, normalize=True, noiseless=False, order=ORDER, scramble=False,
+                                  ground_truths=True):
     """
     Generates stacked array of partial-sky Poisson-sampled maps for a given data set
     :param dataset: String name of data-set to be used
@@ -356,6 +392,7 @@ def split_poisson_maps_by_dataset(dataset, name="map-f1z1.fits.gz", path_to_outp
     :param multiplier: Scale factor used to amplify noise distribution
     :param bias: Linear galaxy-matter bias
     :param normalize: True if resulting noise should be made to reflect a linear galaxy-matter bias of 1
+    :param noiseless: Does not take Poisson draw if True
     :param order: ORDER giving the number of maps to split into (12*ORDER**2)
     :param scramble: If True, randomly scrambles the maps out of order
     :param ground_truths: True if corresponding labels should be returned as well
@@ -364,7 +401,8 @@ def split_poisson_maps_by_dataset(dataset, name="map-f1z1.fits.gz", path_to_outp
     return split_poisson_maps_by_vals(cosmologies_list(dataset), name=name, path_to_output=path_to_output, field=field,
                                       nest=nest, npix=npix, pixarea=pixarea, density=density, density_0=density_0,
                                       multiplier=multiplier,
-                                      bias=bias, normalize=normalize, order=order, scramble=scramble,
+                                      bias=bias, normalize=normalize, noiseless=noiseless, order=order,
+                                      scramble=scramble,
                                       ground_truths=ground_truths)
 
 
@@ -372,7 +410,8 @@ def split_poisson_maps_by_datasets(val=False, name="map-f1z1.fits.gz", path_to_o
                                    field=0,
                                    nest=True, npix=NPIX, pixarea=PIXEL_AREA, density=DENSITY_M, density_0=DENSITY_M,
                                    multiplier=250.0,
-                                   bias=BIAS, normalize=True, order=ORDER, scramble=False, ground_truths=True):
+                                   bias=BIAS, normalize=True, noiseless=False, order=ORDER, scramble=False,
+                                   ground_truths=True):
     """
     Returns a data dictionary containing Poisson-sampled maps for each data-set
     :param val: If True, validation set is included in dataset_names()
@@ -389,6 +428,7 @@ def split_poisson_maps_by_datasets(val=False, name="map-f1z1.fits.gz", path_to_o
     :param multiplier: Scale factor used to amplify noise distribution
     :param bias: Linear galaxy-matter bias
     :param normalize: True if resulting noise should be made to reflect a linear galaxy-matter bias of 1
+    :param noiseless: Does not take Poisson draw if True
     :param order: ORDER giving the number of maps to split into (12*ORDER**2)
     :param scramble: If True, randomly scrambles the maps out of order
     :param ground_truths: True if corresponding labels should be returned as well
@@ -400,7 +440,7 @@ def split_poisson_maps_by_datasets(val=False, name="map-f1z1.fits.gz", path_to_o
                                                       field=field,
                                                       nest=nest, npix=npix, pixarea=pixarea, density=density,
                                                       density_0=density_0, multiplier=multiplier,
-                                                      bias=bias, normalize=normalize, order=order,
+                                                      bias=bias, normalize=normalize, noiseless=noiseless, order=order,
                                                       scramble=scramble,
                                                       ground_truths=ground_truths)
     return data
