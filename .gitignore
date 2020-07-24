@@ -53,3 +53,5 @@ data/
 
 checkpoints/
 summaries/
+
+validation_101.npz
