@@ -249,17 +249,16 @@ def params_v10(verbose=True, path_to_checkpoints=""):
     return params
 
 
-def params_v11(verbose=True, path_to_checkpoints="", num_epochs=20, learning_rate=1e-4):
+def params_v11(verbose=True, num_epochs=20, learning_rate=1e-4):
     """
     Returns params dict for v11 architecture
     :param learning_rate: Constant learning rate to use during training
     :param num_epochs: Number of epochs for training the model
     :param verbose: Outputs information on model configuration
-    :param path_to_checkpoints: Path to parent of checkpoints directory (include '/'!)
     :return: Params dict for DeepSphere model
     """
     params = dict()
-    params['dir_name'] = path_to_checkpoints + "flask-101-v11"
+    params['dir_name'] = "flask-101-v11"
 
     # Types of layers.
     params['conv'] = 'chebyshev5'  # Graph convolution: chebyshev5 or monomials.
@@ -311,17 +310,16 @@ def params_v11(verbose=True, path_to_checkpoints="", num_epochs=20, learning_rat
     return params
 
 
-def params_v12(verbose=True, path_to_checkpoints="", num_epochs=20, learning_rate=1e-4):
+def params_v12(verbose=True, num_epochs=20, learning_rate=1e-4):
     """
     Returns params dict for v12 architecture
     :param learning_rate: Constant learning rate to use during training
     :param num_epochs: Number of epochs for training the model
     :param verbose: Outputs information on model configuration
-    :param path_to_checkpoints: Path to parent of checkpoints directory (include '/'!)
     :return: Params dict for DeepSphere model
     """
     params = dict()
-    params['dir_name'] = path_to_checkpoints + "flask-101-v12"
+    params['dir_name'] = "flask-101-v12"
 
     # Types of layers.
     params['conv'] = 'chebyshev5'  # Graph convolution: chebyshev5 or monomials.
@@ -396,10 +394,10 @@ def params_by_architecture(architecture, verbose=True, path_to_checkpoints="", n
     if architecture == "two-output":
         return params_v8(verbose=verbose, path_to_checkpoints=path_to_checkpoints)
     if architecture == "v11":
-        return params_v11(verbose=verbose, path_to_checkpoints=path_to_checkpoints, num_epochs=num_epochs,
+        return params_v11(verbose=verbose, num_epochs=num_epochs,
                           learning_rate=learning_rate)
     if architecture == "v12":
-        return params_v12(verbose=verbose, path_to_checkpoints=path_to_checkpoints, num_epochs=num_epochs,
+        return params_v12(verbose=verbose, num_epochs=num_epochs,
                           learning_rate=learning_rate)
     print("Error: Architecture {} not found".format(architecture))
 
