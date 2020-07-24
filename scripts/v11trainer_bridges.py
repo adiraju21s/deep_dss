@@ -14,7 +14,7 @@ PATH_TO_VAL = "/pylon5/ch4s8kp/adiraj21/DeepSphere/validation_101.npz"
 
 data = split_poisson_maps_by_dataset("Q1", path_to_output=PATH_TO_OUTPUT, scramble=True, noiseless=True,
                                      deepsphere_dataset=True)
-val = LabeledDataset(np.load(PATH_TO_VAL)['arr_0'][:, :, 0],
+val = LabeledDataset(250.0*np.load(PATH_TO_VAL)['arr_0'][:, :, 0],
                      np.load(PATH_TO_VAL)['arr_1'])
 model = model_by_architecture("v11", num_epochs=16, learning_rate=1e-4)
 accuracy_validation, loss_validation, loss_training, t_step = model.fit(data, val)
