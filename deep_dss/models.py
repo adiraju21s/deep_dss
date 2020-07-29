@@ -375,9 +375,11 @@ def params_v12(verbose=True, num_epochs=20, learning_rate=1e-4, eval_frequency=3
     return params
 
 
-def params_by_architecture(architecture, verbose=True, path_to_checkpoints="", num_epochs=20, learning_rate=1e-4):
+def params_by_architecture(architecture, verbose=True, path_to_checkpoints="", num_epochs=20, learning_rate=1e-4,
+                           eval_frequency=3):
     """
     Returns params dict for a specified architecture
+    :param eval_frequency: Evaluation frequency (# of batches)
     :param architecture: Architecture name string
     :param verbose: Outputs information on model configuration
     :param path_to_checkpoints: Path to parent of checkpoints directory (include '/'!)
@@ -399,18 +401,20 @@ def params_by_architecture(architecture, verbose=True, path_to_checkpoints="", n
         return params_v8(verbose=verbose, path_to_checkpoints=path_to_checkpoints)
     if architecture == "v11":
         return params_v11(verbose=verbose, num_epochs=num_epochs,
-                          learning_rate=learning_rate)
+                          learning_rate=learning_rate, eval_frequency=eval_frequency)
     if architecture == "v12":
         return params_v12(verbose=verbose, num_epochs=num_epochs,
-                          learning_rate=learning_rate)
+                          learning_rate=learning_rate, eval_frequency=eval_frequency)
     print("Error: Architecture {} not found".format(architecture))
 
 
 # Models
 
-def model_by_architecture(architecture, verbose=True, path_to_checkpoints="", num_epochs=20, learning_rate=1e-4):
+def model_by_architecture(architecture, verbose=True, path_to_checkpoints="", num_epochs=20, learning_rate=1e-4,
+                          eval_frequency=3):
     """
     Returns DeepSphere model object for a specified architecture
+    :param eval_frequency: Evaluation frequency (# of batches)
     :param architecture: Architecture name string
     :param verbose: Outputs information on model configuration
     :param path_to_checkpoints: Path to parent of checkpoints directory (include '/'!)
@@ -420,7 +424,7 @@ def model_by_architecture(architecture, verbose=True, path_to_checkpoints="", nu
     """
     return models.deepsphere(
         **params_by_architecture(architecture, verbose=verbose, path_to_checkpoints=path_to_checkpoints,
-                                 num_epochs=num_epochs, learning_rate=learning_rate))
+                                 num_epochs=num_epochs, learning_rate=learning_rate, eval_frequency=eval_frequency))
 
 
 # Loss Functions
