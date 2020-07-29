@@ -251,9 +251,10 @@ def params_v10(verbose=True, path_to_checkpoints=""):
     return params
 
 
-def params_v11(verbose=True, num_epochs=20, learning_rate=1e-4):
+def params_v11(verbose=True, num_epochs=20, learning_rate=1e-4, eval_frequency=3):
     """
     Returns params dict for v11 architecture
+    :param eval_frequency: Evaluation frequency (# of batches)
     :param learning_rate: Constant learning rate to use during training
     :param num_epochs: Number of epochs for training the model
     :param verbose: Outputs information on model configuration
@@ -298,7 +299,7 @@ def params_v11(verbose=True, num_epochs=20, learning_rate=1e-4):
     params['loss'] = 'l1'  # Regression loss.
 
     # Number of model evaluations during training (influence training time).
-    params['eval_frequency'] = 60
+    params['eval_frequency'] = eval_frequency
 
     if verbose:
         print('#sides: {}'.format(nsides))
@@ -312,9 +313,10 @@ def params_v11(verbose=True, num_epochs=20, learning_rate=1e-4):
     return params
 
 
-def params_v12(verbose=True, num_epochs=20, learning_rate=1e-4):
+def params_v12(verbose=True, num_epochs=20, learning_rate=1e-4, eval_frequency=3):
     """
     Returns params dict for v12 architecture
+    :param eval_frequency: Evaluation frequency (# of batches)
     :param learning_rate: Constant learning rate to use during training
     :param num_epochs: Number of epochs for training the model
     :param verbose: Outputs information on model configuration
@@ -359,7 +361,7 @@ def params_v12(verbose=True, num_epochs=20, learning_rate=1e-4):
     params['loss'] = 'custom2'  # Regression loss.
 
     # Number of model evaluations during training (influence training time).
-    params['eval_frequency'] = 60
+    params['eval_frequency'] = eval_frequency
 
     if verbose:
         print('#sides: {}'.format(nsides))
