@@ -375,10 +375,87 @@ def params_v12(verbose=True, num_epochs=20, learning_rate=1e-4, eval_frequency=3
     return params
 
 
+def params_vdata1(exp_name, input_channels, nmaps, nfilters, verbose=True, num_epochs=20, learning_rate=1e-4, decay_factor=0.999,
+                  order=ORDER):
+    """
+    Returns params dict for vdata1 type architectures
+    :param nfilters:
+    :param exp_name:
+    :param order:
+    :param decay_factor:
+    :param nmaps:
+    :param input_channels:
+    :param learning_rate: Constant learning rate to use during training
+    :param num_epochs: Number of epochs for training the model
+    :param verbose: Outputs information on model configuration
+    :return: Params dict for DeepSphere model
+    """
+    params = dict()
+    params['dir_name'] = "flask-101-vdata1-{}".format(exp_name)
+
+    # Types of layers.
+    params['conv'] = 'chebyshev5'  # Graph convolution: chebyshev5 or monomials.
+    params['pool'] = 'max'  # Pooling: max or average.
+    params['activation'] = 'relu'  # Non-linearity: relu, elu, leaky_relu, softmax, tanh, etc.
+    params['statistics'] = None  # Statistics (for invariance): None, mean, var, meanvar, hist.
+
+    # Architecture.
+    params['F'] = [nfilters] * 8  # Graph convolutional layers: number of feature maps.
+    params['K'] = [5, 5, 5, 5, 5, 5, 5, 5]  # Polynomial orders.
+    params['batch_norm'] = [True] * 8  # Batch normalization.
+    params['M'] = [1]  # Fully connected layers: output dimensionalities.
+    params['input_channel'] = input_channels  # Two channels (spherical maps) per sample.
+
+    # Pooling.
+    nsides = [NSIDE, NSIDE // 2, NSIDE // 4, NSIDE // 8, NSIDE // 16, NSIDE // 32, NSIDE // 64, NSIDE // 128,
+              NSIDE // 256]
+    params['nsides'] = nsides
+    params['indexes'] = utils.nside2indexes(nsides, order)
+    #     params['batch_norm_full'] = []
+
+    # Regularization (to prevent over-fitting).
+    params[
+        'regularization'] = 0  # Amount of L2 regularization over the weights
+    # (will be divided by the number of weights).
+    params['dropout'] = 0.8  # Percentage of neurons to keep.
+
+    # Training.
+    params['num_epochs'] = num_epochs  # Number of passes through the training data.
+    params['batch_size'] = 64  # Constant quantity of information (#pixels) per step (invariant to sample size).
+
+    # Optimization: learning rate schedule and optimizer.
+    params['scheduler'] = lambda step: tf.train.exponential_decay(learning_rate, step, decay_steps=1,
+                                                                  decay_rate=decay_factor)
+    params['optimizer'] = lambda lr: tf.train.AdamOptimizer(lr, beta1=0.9, beta2=0.999, epsilon=1e-8)
+    params['loss'] = 'l1'  # Regression loss.
+
+    # Number of model evaluations during training (influence training time).
+    params['eval_frequency'] = 12 * order * order * nmaps / 64 # Once per epoch
+
+    if verbose:
+        print('#sides: {}'.format(nsides))
+        print('#pixels: {}'.format([(nside // order) ** 2 for nside in nsides]))
+        # Number of pixels on the full sphere: 12 * nsides**2.
+
+        print('#samples per batch: {}'.format(params['batch_size']))
+        print('=> #pixels per batch (input): {:,}'.format(params['batch_size'] * (NSIDE // order) ** 2))
+        print('=> #pixels for training (input): {:,}'.format(
+            params['num_epochs'] * 12 * order * order * nmaps * (NSIDE // order) ** 2))
+
+    return params
+
+
 def params_by_architecture(architecture, verbose=True, path_to_checkpoints="", num_epochs=20, learning_rate=1e-4,
-                           eval_frequency=3):
+                           eval_frequency=3, input_channels=None, nmaps=None, decay_factor=0.999, order=ORDER,
+                           exp_name=None, nfilters=None):
     """
     Returns params dict for a specified architecture
+    :param nfilters:
+    :param exp_name:
+    :param order:
+    :param decay_factor:
+    :param nmaps:
+    :param input_channels:
     :param eval_frequency: Evaluation frequency (# of batches)
     :param architecture: Architecture name string
     :param verbose: Outputs information on model configuration
@@ -405,15 +482,26 @@ def params_by_architecture(architecture, verbose=True, path_to_checkpoints="", n
     if architecture == "v12":
         return params_v12(verbose=verbose, num_epochs=num_epochs,
                           learning_rate=learning_rate, eval_frequency=eval_frequency)
+    if architecture == "data1":
+        return params_vdata1(exp_name, input_channels, nmaps, nfilters, verbose=verbose, num_epochs=num_epochs,
+                             learning_rate=learning_rate, eval_frequency=eval_frequency, decay_factor=decay_factor,
+                             order=order)
     print("Error: Architecture {} not found".format(architecture))
 
 
 # Models
 
 def model_by_architecture(architecture, verbose=True, path_to_checkpoints="", num_epochs=20, learning_rate=1e-4,
-                          eval_frequency=3):
+                          eval_frequency=3, input_channels=None, nmaps=None, decay_factor=0.999, order=ORDER,
+                          exp_name=None, nfilters=None):
     """
     Returns DeepSphere model object for a specified architecture
+    :param nfilters:
+    :param exp_name:
+    :param order:
+    :param decay_factor:
+    :param nmaps:
+    :param input_channels:
     :param eval_frequency: Evaluation frequency (# of batches)
     :param architecture: Architecture name string
     :param verbose: Outputs information on model configuration
@@ -424,7 +512,9 @@ def model_by_architecture(architecture, verbose=True, path_to_checkpoints="", nu
     """
     return models.deepsphere(
         **params_by_architecture(architecture, verbose=verbose, path_to_checkpoints=path_to_checkpoints,
-                                 num_epochs=num_epochs, learning_rate=learning_rate, eval_frequency=eval_frequency))
+                                 num_epochs=num_epochs, learning_rate=learning_rate, eval_frequency=eval_frequency,
+                                 input_channels=input_channels, nmaps=nmaps, decay_factor=decay_factor, order=order,
+                                 exp_name=exp_name, nfilters=nfilters))
 
 
 # Loss Functions

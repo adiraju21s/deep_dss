@@ -811,7 +811,9 @@ def split_count_and_lensing_maps_by_vals(sigma8s, config="g", name="map-f1z1.fit
     counts = 0
     if config[0] == "c":
         counts = 1
-    channels = counts + lensing_channels(config[1:])
+        channels = 1 + lensing_channels(config[1:])
+    else:
+        channels = lensing_channels(config)
     if channels == 1:
         x = np.empty((0, npix // (12 * order * order)))
     else:
