@@ -177,7 +177,7 @@ def cosmologies_list(dataset):
     if dataset == "TEST":
         return test_cosmologies_list()
     if dataset == "FULL":
-        full_cosmologies_list()
+        return full_cosmologies_list()
     print("Invalid data set specification. Please try again")
 
 
@@ -231,7 +231,8 @@ def load_map_by_val(sigma8, name="map-f1z1.fits.gz", path_to_output=PATH_TO_OUTP
 
 def load_shear_maps_by_val(sigma8, coadd=True, corr=None, path_to_output=PATH_TO_OUTPUT, nest=True):
     """
-    Returns list of two HEALPIX maps (for $\\gamma_1$ and $\\gamma_2$) for FLASK realization of a given $\\sigma_8$ value
+    Returns list of two HEALPIX maps (for $\\gamma_1$ and $\\gamma_2$) for FLASK realization of a
+    given $\\sigma_8$ value
     :param sigma8: Value of $\\sigma_8$
     :param coadd: If True, coadds correlated and uncorrelated signals
     :param corr: If coadd is False, determines whether correlated or uncorrelated signals are returned
@@ -240,14 +241,14 @@ def load_shear_maps_by_val(sigma8, coadd=True, corr=None, path_to_output=PATH_TO
     :return: List of two Numpy arrays
     """
     if coadd:
-        return [load_map_by_val(sigma8, name="map-f2z1.fits.gz", path_to_output=path_to_output, field=i,
-                                nest=nest) + load_map_by_val(sigma8, name="map-f2z2.fits.gz",
+        return [load_map_by_val(sigma8, name="kappa-gamma-f2z1.fits.gz", path_to_output=path_to_output, field=i,
+                                nest=nest) + load_map_by_val(sigma8, name="kappa-gamma-f2z2.fits.gz",
                                                              path_to_output=path_to_output, field=i, nest=nest) for i in
                 range(2)]
     if corr:
-        return [load_map_by_val(sigma8, name="map-f2z1.fits.gz", path_to_output=path_to_output, field=i,
+        return [load_map_by_val(sigma8, name="kappa-gamma-f2z1.fits.gz", path_to_output=path_to_output, field=i,
                                 nest=nest) for i in range(2)]
-    return [load_map_by_val(sigma8, name="map-f2z2.fits.gz", path_to_output=path_to_output, field=i,
+    return [load_map_by_val(sigma8, name="kappa-gamma-f2z2.fits.gz", path_to_output=path_to_output, field=i,
                             nest=nest) for i in range(2)]
 
 
@@ -262,19 +263,19 @@ def load_convergence_map_by_val(sigma8, coadd=True, corr=None, path_to_output=PA
     :return: Numpy array storing HEALPIX map
     """
     if coadd:
-        return load_map_by_val(sigma8, name="map-f2z1.fits.gz", path_to_output=path_to_output, field=2,
-                               nest=nest) + load_map_by_val(sigma8, name="map-f2z2.fits.gz",
+        return load_map_by_val(sigma8, name="kappa-gamma-f2z1.fits.gz", path_to_output=path_to_output, field=2,
+                               nest=nest) + load_map_by_val(sigma8, name="kappa-gamma-f2z2.fits.gz",
                                                             path_to_output=path_to_output, field=2, nest=nest)
     if corr:
-        return load_map_by_val(sigma8, name="map-f2z1.fits.gz", path_to_output=path_to_output, field=2,
+        return load_map_by_val(sigma8, name="kappa-gamma-f2z1.fits.gz", path_to_output=path_to_output, field=2,
                                nest=nest)
-    return load_map_by_val(sigma8, name="map-f2z2.fits.gz", path_to_output=path_to_output, field=2,
+    return load_map_by_val(sigma8, name="kappa-gamma-f2z2.fits.gz", path_to_output=path_to_output, field=2,
                            nest=nest)
 
 
 @jit(nopython=True)
 def accelerated_noiseless_counts(m, npix=NPIX, pixarea=PIXEL_AREA,
-                                 density=DENSITY_M, density_0=DENSITY_M, multiplier=250.0, bias=BIAS,
+                                 density=DENSITY_M, density_0=DENSITY_M, multiplier=1.0, bias=BIAS,
                                  normalize=True):
     """
     Returns new version of input map without any Poissonian shot noise applied.
@@ -288,7 +289,7 @@ def accelerated_noiseless_counts(m, npix=NPIX, pixarea=PIXEL_AREA,
     :param normalize: True if resulting noise should be made to reflect a linear galaxy-matter bias of 1
     :return: A noiseless output map
     """
-    x = np.empty(m.shape)
+    x = np.zeros(m.shape)
     for i in range(npix):
         if normalize:
             x[i] = multiplier * (density_0 / density) * (density * pixarea * (1 + m[i] / bias))
@@ -298,7 +299,7 @@ def accelerated_noiseless_counts(m, npix=NPIX, pixarea=PIXEL_AREA,
 
 
 @jit(nopython=True)
-def accelerated_noiseless_shear(g, npix=NPIX, multiplier=250.0):
+def accelerated_noiseless_shear(g, npix=NPIX, multiplier=1.0):
     """
     Returns new version of input maps without any Gaussian shape noise applied.
     :param g: FLASK output maps of lensing shear, $\\gamma_1$ and $\\gamma_2$
@@ -306,7 +307,7 @@ def accelerated_noiseless_shear(g, npix=NPIX, multiplier=250.0):
     :param multiplier: Scale factor used to amplify noise distribution
     :return: A noiseless list of output maps
     """
-    x = [np.empty(g[i].shape) for i in range(2)]
+    x = [np.zeros(g[i].shape) for i in range(2)]
     for c in range(2):
         for i in range(npix):
             x[c][i] = multiplier * g[c][i]
@@ -314,7 +315,7 @@ def accelerated_noiseless_shear(g, npix=NPIX, multiplier=250.0):
 
 
 @jit(nopython=True)
-def accelerated_noiseless_convergence(k, npix=NPIX, multiplier=250.0):
+def accelerated_noiseless_convergence(k, npix=NPIX, multiplier=1.0):
     """
     Returns new version of input map without any Gaussian shape noise applied.
     :param k: FLASK output maps of lensing convergence, $\\kappa$
@@ -322,7 +323,7 @@ def accelerated_noiseless_convergence(k, npix=NPIX, multiplier=250.0):
     :param multiplier: Scale factor used to amplify noise distribution
     :return: A noiseless output map
     """
-    x = np.empty(k[i].shape)
+    x = np.zeros(k.shape)
     for i in range(npix):
         x[i] = multiplier * k[i]
     return x
@@ -330,7 +331,7 @@ def accelerated_noiseless_convergence(k, npix=NPIX, multiplier=250.0):
 
 @jit(nopython=True)
 def accelerated_poissonian_shot_noise(m, npix=NPIX, pixarea=PIXEL_AREA,
-                                      density=DENSITY_M, density_0=DENSITY_M, multiplier=250.0, bias=BIAS,
+                                      density=DENSITY_M, density_0=DENSITY_M, multiplier=1.0, bias=BIAS,
                                       normalize=True):
     """
     Returns new version of input map with a specified level of Poissonian shot noise applied.
@@ -344,7 +345,7 @@ def accelerated_poissonian_shot_noise(m, npix=NPIX, pixarea=PIXEL_AREA,
     :param normalize: True if resulting noise should be made to reflect a linear galaxy-matter bias of 1
     :return: A noisy Poisson-sampled output map
     """
-    x = np.empty(m.shape)
+    x = np.zeros(m.shape)
     for i in range(npix):
         if normalize:
             x[i] = multiplier * (density_0 / density) * np.random.poisson(density * pixarea * (1 + m[i] / bias))
@@ -355,7 +356,7 @@ def accelerated_poissonian_shot_noise(m, npix=NPIX, pixarea=PIXEL_AREA,
 
 @jit(nopython=True)
 def accelerated_gaussian_shear_noise(g, npix=NPIX, pixarea=PIXEL_AREA,
-                                     density=DENSITY_KG, density_0=DENSITY_KG, multiplier=250.0,
+                                     density=DENSITY_KG, density_0=DENSITY_KG, multiplier=1.0,
                                      ellip_sigma=ELLIP_SIGMA):
     """
     Returns new version of input map with a specified level of Gaussian shape noise applied.
@@ -368,7 +369,7 @@ def accelerated_gaussian_shear_noise(g, npix=NPIX, pixarea=PIXEL_AREA,
     :param multiplier: Scale factor used to amplify noise distribution
     :return: A list of two noisy Gaussian-sampled output maps
     """
-    x = [np.empty(g[i].shape) for i in range(2)]
+    x = [np.zeros(g[i].shape) for i in range(2)]
     for c in range(2):
         for i in range(npix):
             x[c][i] = multiplier * (density_0 / density) * np.random.normal(loc=g[c][i], scale=ellip_sigma / np.sqrt(
@@ -378,13 +379,13 @@ def accelerated_gaussian_shear_noise(g, npix=NPIX, pixarea=PIXEL_AREA,
 
 @jit(nopython=True)
 def accelerated_gaussian_convergence_noise(k, npix=NPIX, pixarea=PIXEL_AREA,
-                                           density=DENSITY_KG, density_0=DENSITY_KG, multiplier=250.0,
+                                           density=DENSITY_KG, density_0=DENSITY_KG, multiplier=1.0,
                                            ellip_sigma=ELLIP_SIGMA):
     """
     Returns new version of input map with a specified level of Gaussian shape noise applied.
     (Modeled after https://arxiv.org/pdf/2007.06529.pdf)
+    :param k: FLASK output maps of lensing convergence ($\\kappa$)
     :param ellip_sigma: Standard deviation representing uncertainty in ellipticity measurements
-    :param g: FLASK output map of lensing convergence, $\\kappa$
     :param npix: Number of pixels in map
     :param pixarea: Area of each pixel, in arcmin^2
     :param density: Source galaxy density, in arcmin^2, to use for noise application
@@ -392,16 +393,16 @@ def accelerated_gaussian_convergence_noise(k, npix=NPIX, pixarea=PIXEL_AREA,
     :param multiplier: Scale factor used to amplify noise distribution
     :return: A noisy Gaussian-sampled output map
     """
-    x = np.empty(k.shape)
+    x = np.zeros(k.shape)
     for i in range(npix):
         x[i] = multiplier * (density_0 / density) * np.random.normal(loc=k[i], scale=ellip_sigma / np.sqrt(
             2 * pixarea * density))
     return x
 
 
-def poisson_map_by_val(sigma8, name="map-f1z1.fits.gz", path_to_output=PATH_TO_OUTPUT, field=0, nest=True,
-                       npix=NPIX, pixarea=PIXEL_AREA, density=DENSITY_M, density_0=DENSITY_M, multiplier=250.0,
-                       bias=BIAS, normalize=True, noiseless=False):
+def count_map_by_val(sigma8, name="map-f1z1.fits.gz", path_to_output=PATH_TO_OUTPUT, field=0, nest=True,
+                     npix=NPIX, pixarea=PIXEL_AREA, density=DENSITY_M, density_0=DENSITY_M, multiplier=1.0,
+                     bias=BIAS, normalize=True, noiseless=False):
     """
     Loads galaxy density contrast map for a given $\\sigma_8$ and applies Poissonian shot noise
     :param sigma8: Value of $\\sigma_8$
@@ -434,7 +435,7 @@ def poisson_map_by_val(sigma8, name="map-f1z1.fits.gz", path_to_output=PATH_TO_O
 
 def shear_maps_by_val(sigma8, coadd=True, corr=None, path_to_output=PATH_TO_OUTPUT, nest=True, npix=NPIX,
                       pixarea=PIXEL_AREA,
-                      density=DENSITY_KG, density_0=DENSITY_KG, multiplier=250.0,
+                      density=DENSITY_KG, density_0=DENSITY_KG, multiplier=1.0,
                       ellip_sigma=ELLIP_SIGMA, noiseless=False):
     """
     Loads lensing shear maps for a given $\\sigma_8$ and applies Gaussian shape noise
@@ -463,7 +464,7 @@ def shear_maps_by_val(sigma8, coadd=True, corr=None, path_to_output=PATH_TO_OUTP
 
 def convergence_map_by_val(sigma8, coadd=True, corr=None, path_to_output=PATH_TO_OUTPUT, nest=True, npix=NPIX,
                            pixarea=PIXEL_AREA,
-                           density=DENSITY_KG, density_0=DENSITY_KG, multiplier=250.0,
+                           density=DENSITY_KG, density_0=DENSITY_KG, multiplier=1.0,
                            ellip_sigma=ELLIP_SIGMA, noiseless=False):
     """
     Loads lensing convergence map for a given $\\sigma_8$ and applies Gaussian shape noise
@@ -500,13 +501,13 @@ def split_map(m, order=ORDER, nest=True):
     :param nest: True if "NEST" pixelization, False if "RING"
     :return: Numpy array of split maps
     """
-    return experiment_helper.hp_split(m, order, nest)
+    return experiment_helper.hp_split(m, order, nest=nest)
 
 
-def split_poisson_map_by_val(sigma8, name="map-f1z1.fits.gz", path_to_output=PATH_TO_OUTPUT, field=0,
-                             nest=True, npix=NPIX, pixarea=PIXEL_AREA, density=DENSITY_M, density_0=DENSITY_M,
-                             multiplier=250.0,
-                             bias=BIAS, normalize=True, order=ORDER, noiseless=False):
+def split_count_maps_by_val(sigma8, name="map-f1z1.fits.gz", path_to_output=PATH_TO_OUTPUT, field=0,
+                            nest=True, npix=NPIX, pixarea=PIXEL_AREA, density=DENSITY_M, density_0=DENSITY_M,
+                            multiplier=1.0,
+                            bias=BIAS, normalize=True, order=ORDER, noiseless=False):
     """
     Generates partial-sky maps with applied Poissonian shot noise for a given $\\sigma_8$
     :param sigma8: Value of $\\sigma_8$
@@ -527,15 +528,15 @@ def split_poisson_map_by_val(sigma8, name="map-f1z1.fits.gz", path_to_output=PAT
     :param noiseless: Does not take Poisson draw if True
     :return: Numpy array of split, (rescaled) Poisson-sampled maps
     """
-    return split_map(poisson_map_by_val(sigma8, name=name, path_to_output=path_to_output, field=field, nest=nest,
-                                        npix=npix, pixarea=pixarea, density=density, density_0=density_0,
-                                        multiplier=multiplier,
-                                        bias=bias, normalize=normalize, noiseless=noiseless), order=order, nest=nest)
+    return split_map(count_map_by_val(sigma8, name=name, path_to_output=path_to_output, field=field, nest=nest,
+                                      npix=npix, pixarea=pixarea, density=density, density_0=density_0,
+                                      multiplier=multiplier,
+                                      bias=bias, normalize=normalize, noiseless=noiseless), order=order, nest=nest)
 
 
 def split_shear_maps_by_val(sigma8, coadd=True, corr=None, path_to_output=PATH_TO_OUTPUT, nest=True, npix=NPIX,
                             pixarea=PIXEL_AREA,
-                            density=DENSITY_KG, density_0=DENSITY_KG, multiplier=250.0,
+                            density=DENSITY_KG, density_0=DENSITY_KG, multiplier=1.0,
                             ellip_sigma=ELLIP_SIGMA, noiseless=False, order=ORDER):
     """
     Generates partial-sky shear maps with applied Gaussian shape noise for a given $\\sigma_8$
@@ -562,7 +563,7 @@ def split_shear_maps_by_val(sigma8, coadd=True, corr=None, path_to_output=PATH_T
 
 def split_convergence_maps_by_val(sigma8, coadd=True, corr=None, path_to_output=PATH_TO_OUTPUT, nest=True, npix=NPIX,
                                   pixarea=PIXEL_AREA,
-                                  density=DENSITY_KG, density_0=DENSITY_KG, multiplier=250.0,
+                                  density=DENSITY_KG, density_0=DENSITY_KG, multiplier=1.0,
                                   ellip_sigma=ELLIP_SIGMA, noiseless=False, order=ORDER):
     """
     Generates partial-sky convergence maps with applied Gaussian shape noise for a given $\\sigma_8$
@@ -590,7 +591,7 @@ def split_convergence_maps_by_val(sigma8, coadd=True, corr=None, path_to_output=
 def split_lensing_maps_by_val(sigma8, config="g", coadd=True, corr=None, path_to_output=PATH_TO_OUTPUT, nest=True,
                               npix=NPIX,
                               pixarea=PIXEL_AREA,
-                              density=DENSITY_KG, density_0=DENSITY_KG, multiplier=250.0,
+                              density=DENSITY_KG, density_0=DENSITY_KG, multiplier=1.0,
                               ellip_sigma=ELLIP_SIGMA, noiseless=False, order=ORDER):
     """
     Generates a set of partial-sky lensing maps with applied Gaussian shape noise for a given $\\sigma_8$
@@ -614,7 +615,7 @@ def split_lensing_maps_by_val(sigma8, config="g", coadd=True, corr=None, path_to
         g = split_shear_maps_by_val(sigma8, coadd=coadd, corr=corr, path_to_output=path_to_output, nest=nest, npix=npix,
                                     pixarea=pixarea, density=density, density_0=density_0, multiplier=multiplier,
                                     ellip_sigma=ellip_sigma, noiseless=noiseless, order=order)
-        return np.stack((g[0], g[1]), axis=2)
+        return np.concatenate((g[0], g[1]), axis=2)
     if config == "k":
         return split_convergence_maps_by_val(sigma8, coadd=coadd, corr=corr, path_to_output=path_to_output, nest=nest,
                                              npix=npix,
@@ -629,15 +630,15 @@ def split_lensing_maps_by_val(sigma8, config="g", coadd=True, corr=None, path_to
                                           npix=npix,
                                           pixarea=pixarea, density=density, density_0=density_0, multiplier=multiplier,
                                           ellip_sigma=ellip_sigma, noiseless=noiseless, order=order)
-        return np.stack((g[0], g[1], k), axis=2)
-    print("Unknown config in split_lensing_maps_by_val(). Please try again.")
+        return np.concatenate((g[0], g[1], k), axis=2)
+    print("Unknown config in deep_dss.utils.split_lensing_maps_by_val. Please try again.")
 
 
-def split_poisson_maps_by_vals(sigma8s, name="map-f1z1.fits.gz", path_to_output=PATH_TO_OUTPUT, field=0,
-                               nest=True, npix=NPIX, pixarea=PIXEL_AREA, density=DENSITY_M, density_0=DENSITY_M,
-                               multiplier=250.0,
-                               bias=BIAS, normalize=True, noiseless=False, order=ORDER, scramble=False,
-                               ground_truths=True, reshape_x=False, reshape_y=True, deepsphere_dataset=False):
+def split_count_maps_by_vals(sigma8s, name="map-f1z1.fits.gz", path_to_output=PATH_TO_OUTPUT, field=0,
+                             nest=True, npix=NPIX, pixarea=PIXEL_AREA, density=DENSITY_M, density_0=DENSITY_M,
+                             multiplier=1.0,
+                             bias=BIAS, normalize=True, noiseless=False, order=ORDER, scramble=False,
+                             ground_truths=True, reshape_x=False, reshape_y=True, deepsphere_dataset=False):
     """
     Generates stacked array of partial-sky Poisson-sampled maps for a list of $\\sigma_8$ values
     :param deepsphere_dataset: Returns a DeepSphere LabeledDataset if true
@@ -665,10 +666,10 @@ def split_poisson_maps_by_vals(sigma8s, name="map-f1z1.fits.gz", path_to_output=
     """
     x = np.empty((0, npix // (12 * order * order)))
     for sigma8 in sigma8s:
-        m = split_poisson_map_by_val(sigma8, name=name, path_to_output=path_to_output, field=field,
-                                     nest=nest, npix=npix, pixarea=pixarea, density=density, density_0=density_0,
-                                     multiplier=multiplier,
-                                     bias=bias, normalize=normalize, noiseless=noiseless, order=order)
+        m = split_count_maps_by_val(sigma8, name=name, path_to_output=path_to_output, field=field,
+                                    nest=nest, npix=npix, pixarea=pixarea, density=density, density_0=density_0,
+                                    multiplier=multiplier,
+                                    bias=bias, normalize=normalize, noiseless=noiseless, order=order)
         x = np.vstack((x, m))
     if reshape_x:
         x = np.reshape(x, (len(sigma8s) * 12 * order * order, npix // (12 * order * order), 1))
@@ -702,14 +703,13 @@ def lensing_channels(config):
         return 3
     if config == "":
         return 0
-    print("Unknown config in lensing_channels(). Please try again.")
-    return -1
+    print("Unknown config in deep_dss.utils.lensing_channels. Please try again.")
 
 
 def split_lensing_maps_by_vals(sigma8s, config="g", coadd=True, corr=None, path_to_output=PATH_TO_OUTPUT, nest=True,
                                npix=NPIX,
                                pixarea=PIXEL_AREA,
-                               density=DENSITY_KG, density_0=DENSITY_KG, multiplier=250.0,
+                               density=DENSITY_KG, density_0=DENSITY_KG, multiplier=1.0,
                                ellip_sigma=ELLIP_SIGMA, noiseless=False, order=ORDER, scramble=False,
                                ground_truths=True, reshape_x=False, reshape_y=True, deepsphere_dataset=False):
     """
@@ -737,8 +737,6 @@ def split_lensing_maps_by_vals(sigma8s, config="g", coadd=True, corr=None, path_
         stacked Numpy array of split, (rescaled) Gaussian-sampled maps otherwise
     """
     channels = lensing_channels(config)
-    if channels == 0:
-        return
     if channels == 1:
         x = np.empty((0, npix // (12 * order * order)))
     else:
@@ -771,15 +769,16 @@ def split_count_and_lensing_maps_by_vals(sigma8s, config="g", name="map-f1z1.fit
                                          field=0,
                                          nest=True, npix=NPIX, pixarea=PIXEL_AREA, density_m=DENSITY_M,
                                          density_m_0=DENSITY_M,
-                                         multiplier_m=250.0,
+                                         multiplier_m=1.0,
                                          bias=BIAS, normalize=True, noiseless_m=False, coadd=True, corr=None,
-                                         density_kg=DENSITY_KG, density_kg_0=DENSITY_KG, multiplier_kg=250.0,
+                                         density_kg=DENSITY_KG, density_kg_0=DENSITY_KG, multiplier_kg=1.0,
                                          ellip_sigma=ELLIP_SIGMA, noiseless_kg=False, order=ORDER, scramble=False,
                                          ground_truths=True, reshape_x=False, reshape_y=True, deepsphere_dataset=False):
     """
     Generates stacked array of partial-sky Poisson and Gaussian-sampled maps for a list of $\\sigma_8$ values
     :param sigma8s: List of $\\sigma_8$ values
-    :param config: "k" for convergence only, "g" for shear only, "kg" for convergence and shear, with "c" added to the beginning for counts
+    :param config: "k" for convergence only, "g" for shear only, "kg" for convergence and shear, with "c" added
+    to the beginning for counts
     :param name: name of the map
     :param path_to_output: relative path to the FLASK output directory
     :param field: field of the map (for lensing maps with multiple fields)
@@ -821,25 +820,30 @@ def split_count_and_lensing_maps_by_vals(sigma8s, config="g", name="map-f1z1.fit
     for sigma8 in sigma8s:
         if counts == 0:
             kg = split_lensing_maps_by_val(sigma8, coadd=coadd, corr=corr, path_to_output=path_to_output,
-                                           nest=nest, npix=npix, pixarea=pixarea, density=density, density_0=density_0,
-                                           multiplier=multiplier, ellip_sigma=ellip_sigma,
-                                           noiseless=noiseless, order=order, config=config)
+                                           nest=nest, npix=npix, pixarea=pixarea, density=density_kg,
+                                           density_0=density_kg_0,
+                                           multiplier=multiplier_kg, ellip_sigma=ellip_sigma,
+                                           noiseless=noiseless_kg, order=order, config=config)
             x = np.vstack((x, kg))
         else:
-            c = split_poisson_map_by_val(sigma8, name=name, path_to_output=path_to_output, field=field,
-                                         nest=nest, npix=npix, pixarea=pixarea, density=density_m,
-                                         density_0=density_m_0,
-                                         multiplier=multiplier_m,
-                                         bias=bias, normalize=normalize, noiseless=noiseless_m, order=order)
+            c = split_count_maps_by_val(sigma8, name=name, path_to_output=path_to_output, field=field,
+                                        nest=nest, npix=npix, pixarea=pixarea, density=density_m,
+                                        density_0=density_m_0,
+                                        multiplier=multiplier_m,
+                                        bias=bias, normalize=normalize, noiseless=noiseless_m,
+                                        order=order)
             if channels == 1:
                 x = np.vstack((x, c))
             else:
+                c = np.reshape(c, (12 * order * order, npix // (12 * order * order), 1))
                 kg = split_lensing_maps_by_val(sigma8, coadd=coadd, corr=corr, path_to_output=path_to_output,
                                                nest=nest, npix=npix, pixarea=pixarea, density=density_kg,
                                                density_0=density_kg_0,
                                                multiplier=multiplier_kg, ellip_sigma=ellip_sigma,
-                                               noiseless=noiseless_kg, order=order, config=config)
-                x = np.vstack((x, np.stack((c, kg), axis=2)))
+                                               noiseless=noiseless_kg, order=order, config=config[1:])
+                if channels - counts == 1:
+                    kg = np.reshape(kg, (12 * order * order, npix // (12 * order * order), 1))
+                x = np.vstack((x, np.concatenate((c, kg), axis=2)))
     if channels == 1 and reshape_x:
         x = np.reshape(x, (len(sigma8s) * 12 * order * order, npix // (12 * order * order), 1))
     if ground_truths:
@@ -858,11 +862,11 @@ def split_count_and_lensing_maps_by_vals(sigma8s, config="g", name="map-f1z1.fit
     return x
 
 
-def split_poisson_maps_by_dataset(dataset, name="map-f1z1.fits.gz", path_to_output=PATH_TO_OUTPUT, field=0,
-                                  nest=True, npix=NPIX, pixarea=PIXEL_AREA, density=DENSITY_M, density_0=DENSITY_M,
-                                  multiplier=250.0,
-                                  bias=BIAS, normalize=True, noiseless=False, order=ORDER, scramble=False,
-                                  ground_truths=True, reshape_x=False, reshape_y=True, deepsphere_dataset=False):
+def split_count_maps_by_dataset(dataset, name="map-f1z1.fits.gz", path_to_output=PATH_TO_OUTPUT, field=0,
+                                nest=True, npix=NPIX, pixarea=PIXEL_AREA, density=DENSITY_M, density_0=DENSITY_M,
+                                multiplier=1.0,
+                                bias=BIAS, normalize=True, noiseless=False, order=ORDER, scramble=False,
+                                ground_truths=True, reshape_x=False, reshape_y=True, deepsphere_dataset=False):
     """
     Generates stacked array of partial-sky Poisson-sampled maps for a given data set
     :param dataset: String name of data-set to be used
@@ -887,19 +891,19 @@ def split_poisson_maps_by_dataset(dataset, name="map-f1z1.fits.gz", path_to_outp
     :param deepsphere_dataset: Returns a DeepSphere LabeledDataset if true
     :return: Stacked Numpy array of split, (rescaled) Poisson-sampled maps
     """
-    return split_poisson_maps_by_vals(cosmologies_list(dataset), name=name, path_to_output=path_to_output, field=field,
-                                      nest=nest, npix=npix, pixarea=pixarea, density=density, density_0=density_0,
-                                      multiplier=multiplier,
-                                      bias=bias, normalize=normalize, noiseless=noiseless, order=order,
-                                      scramble=scramble,
-                                      ground_truths=ground_truths, reshape_x=reshape_x, reshape_y=reshape_y,
-                                      deepsphere_dataset=deepsphere_dataset)
+    return split_count_maps_by_vals(cosmologies_list(dataset), name=name, path_to_output=path_to_output, field=field,
+                                    nest=nest, npix=npix, pixarea=pixarea, density=density, density_0=density_0,
+                                    multiplier=multiplier,
+                                    bias=bias, normalize=normalize, noiseless=noiseless, order=order,
+                                    scramble=scramble,
+                                    ground_truths=ground_truths, reshape_x=reshape_x, reshape_y=reshape_y,
+                                    deepsphere_dataset=deepsphere_dataset)
 
 
 def split_lensing_maps_by_dataset(dataset, config="g", coadd=True, corr=None, path_to_output=PATH_TO_OUTPUT, nest=True,
                                   npix=NPIX,
                                   pixarea=PIXEL_AREA,
-                                  density=DENSITY_KG, density_0=DENSITY_KG, multiplier=250.0,
+                                  density=DENSITY_KG, density_0=DENSITY_KG, multiplier=1.0,
                                   ellip_sigma=ELLIP_SIGMA, noiseless=False, order=ORDER, scramble=False,
                                   ground_truths=True, reshape_x=False, reshape_y=True, deepsphere_dataset=False):
     """
@@ -940,16 +944,17 @@ def split_count_and_lensing_maps_by_dataset(dataset, config="g", name="map-f1z1.
                                             field=0,
                                             nest=True, npix=NPIX, pixarea=PIXEL_AREA, density_m=DENSITY_M,
                                             density_m_0=DENSITY_M,
-                                            multiplier_m=250.0,
+                                            multiplier_m=1.0,
                                             bias=BIAS, normalize=True, noiseless_m=False, coadd=True, corr=None,
-                                            density_kg=DENSITY_KG, density_kg_0=DENSITY_KG, multiplier_kg=250.0,
+                                            density_kg=DENSITY_KG, density_kg_0=DENSITY_KG, multiplier_kg=1.0,
                                             ellip_sigma=ELLIP_SIGMA, noiseless_kg=False, order=ORDER, scramble=False,
                                             ground_truths=True, reshape_x=False, reshape_y=True,
                                             deepsphere_dataset=False):
     """
     Generates stacked array of partial-sky Poisson and Gaussian-sampled maps for a given data-set
     :param dataset: String name of data-set to be used
-    :param config: "k" for convergence only, "g" for shear only, "kg" for convergence and shear, with "c" added to the beginning for counts
+    :param config: "k" for convergence only, "g" for shear only, "kg" for convergence and shear,
+    with "c" added to the beginning for counts
     :param name: name of the map
     :param path_to_output: relative path to the FLASK output directory
     :param field: field of the map (for lensing maps with multiple fields)
@@ -994,12 +999,12 @@ def split_count_and_lensing_maps_by_dataset(dataset, config="g", name="map-f1z1.
                                                 deepsphere_dataset=deepsphere_dataset)
 
 
-def split_poisson_maps_by_datasets(val=False, name="map-f1z1.fits.gz", path_to_output=PATH_TO_OUTPUT,
-                                   field=0,
-                                   nest=True, npix=NPIX, pixarea=PIXEL_AREA, density=DENSITY_M, density_0=DENSITY_M,
-                                   multiplier=250.0,
-                                   bias=BIAS, normalize=True, noiseless=False, order=ORDER, scramble=False,
-                                   ground_truths=True, reshape_x=False, reshape_y=True, deepsphere_dataset=False):
+def split_count_maps_by_datasets(val=False, name="map-f1z1.fits.gz", path_to_output=PATH_TO_OUTPUT,
+                                 field=0,
+                                 nest=True, npix=NPIX, pixarea=PIXEL_AREA, density=DENSITY_M, density_0=DENSITY_M,
+                                 multiplier=1.0,
+                                 bias=BIAS, normalize=True, noiseless=False, order=ORDER, scramble=False,
+                                 ground_truths=True, reshape_x=False, reshape_y=True, deepsphere_dataset=False):
     """
     Returns a data dictionary containing Poisson-sampled maps for each data-set
     :param val: If True, validation set is included in dataset_names()
@@ -1027,14 +1032,14 @@ def split_poisson_maps_by_datasets(val=False, name="map-f1z1.fits.gz", path_to_o
     """
     data = {}
     for dataset in dataset_names(val=val):
-        data[dataset] = split_poisson_maps_by_dataset(dataset=dataset, name=name, path_to_output=path_to_output,
-                                                      field=field,
-                                                      nest=nest, npix=npix, pixarea=pixarea, density=density,
-                                                      density_0=density_0, multiplier=multiplier,
-                                                      bias=bias, normalize=normalize, noiseless=noiseless, order=order,
-                                                      scramble=scramble,
-                                                      ground_truths=ground_truths, reshape_x=reshape_x,
-                                                      reshape_y=reshape_y, deepsphere_dataset=deepsphere_dataset)
+        data[dataset] = split_count_maps_by_dataset(dataset=dataset, name=name, path_to_output=path_to_output,
+                                                    field=field,
+                                                    nest=nest, npix=npix, pixarea=pixarea, density=density,
+                                                    density_0=density_0, multiplier=multiplier,
+                                                    bias=bias, normalize=normalize, noiseless=noiseless, order=order,
+                                                    scramble=scramble,
+                                                    ground_truths=ground_truths, reshape_x=reshape_x,
+                                                    reshape_y=reshape_y, deepsphere_dataset=deepsphere_dataset)
     return data
 
 
@@ -1042,7 +1047,7 @@ def split_lensing_maps_by_datasets(val=False, config="g", coadd=True, corr=None,
                                    nest=True,
                                    npix=NPIX,
                                    pixarea=PIXEL_AREA,
-                                   density=DENSITY_KG, density_0=DENSITY_KG, multiplier=250.0,
+                                   density=DENSITY_KG, density_0=DENSITY_KG, multiplier=1.0,
                                    ellip_sigma=ELLIP_SIGMA, noiseless=False, order=ORDER, scramble=False,
                                    ground_truths=True, reshape_x=False, reshape_y=True, deepsphere_dataset=False):
     """
@@ -1088,16 +1093,17 @@ def split_count_and_lensing_maps_by_datasets(val=False, config="g", name="map-f1
                                              field=0,
                                              nest=True, npix=NPIX, pixarea=PIXEL_AREA, density_m=DENSITY_M,
                                              density_m_0=DENSITY_M,
-                                             multiplier_m=250.0,
+                                             multiplier_m=1.0,
                                              bias=BIAS, normalize=True, noiseless_m=False, coadd=True, corr=None,
-                                             density_kg=DENSITY_KG, density_kg_0=DENSITY_KG, multiplier_kg=250.0,
+                                             density_kg=DENSITY_KG, density_kg_0=DENSITY_KG, multiplier_kg=1.0,
                                              ellip_sigma=ELLIP_SIGMA, noiseless_kg=False, order=ORDER, scramble=False,
                                              ground_truths=True, reshape_x=False, reshape_y=True,
                                              deepsphere_dataset=False):
     """
     Returns a data dictionary containing Poisson Gaussian-sampled maps for each data-set
     :param val: If True, validation set is included in dataset_names()
-    :param config: "k" for convergence only, "g" for shear only, "kg" for convergence and shear, with "c" added to the beginning for counts
+    :param config: "k" for convergence only, "g" for shear only, "kg" for convergence and shear,
+    with "c" added to the beginning for counts
     :param name: name of the map
     :param path_to_output: relative path to the FLASK output directory
     :param field: field of the map (for lensing maps with multiple fields)

@@ -375,7 +375,8 @@ def params_v12(verbose=True, num_epochs=20, learning_rate=1e-4, eval_frequency=3
     return params
 
 
-def params_vdata1(exp_name, input_channels, nmaps, nfilters, verbose=True, num_epochs=20, learning_rate=1e-4, decay_factor=0.999,
+def params_vdata1(exp_name, input_channels, nmaps, nfilters, verbose=True, num_epochs=20, learning_rate=1e-4,
+                  decay_factor=0.999,
                   order=ORDER):
     """
     Returns params dict for vdata1 type architectures
@@ -430,7 +431,7 @@ def params_vdata1(exp_name, input_channels, nmaps, nfilters, verbose=True, num_e
     params['loss'] = 'l1'  # Regression loss.
 
     # Number of model evaluations during training (influence training time).
-    params['eval_frequency'] = 12 * order * order * nmaps / 64 # Once per epoch
+    params['eval_frequency'] = 12 * order * order * nmaps / 64  # Once per epoch
 
     if verbose:
         print('#sides: {}'.format(nsides))
@@ -484,7 +485,7 @@ def params_by_architecture(architecture, verbose=True, path_to_checkpoints="", n
                           learning_rate=learning_rate, eval_frequency=eval_frequency)
     if architecture == "data1":
         return params_vdata1(exp_name, input_channels, nmaps, nfilters, verbose=verbose, num_epochs=num_epochs,
-                             learning_rate=learning_rate, eval_frequency=eval_frequency, decay_factor=decay_factor,
+                             learning_rate=learning_rate, decay_factor=decay_factor,
                              order=order)
     print("Error: Architecture {} not found".format(architecture))
 
