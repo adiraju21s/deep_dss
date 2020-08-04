@@ -36,8 +36,8 @@ val = LabeledDataset(val_dict["x"], val_dict["y"])
 train_dict = split_count_and_lensing_maps_by_dataset("Q1", config=config, noiseless_m=True,
                                                      noiseless_kg=True, order=order,
                                                      scramble=True)
-train_dict["x"] = train_dict["x"][:nmaps]
-train_dict["y"] = train_dict["y"][:nmaps]
+train_dict["x"] = train_dict["x"][:nmaps * 12 * order * order]
+train_dict["y"] = train_dict["y"][:nmaps * 12 * order * order]
 
 train = LabeledDataset(train_dict["x"], train_dict["y"])
 
@@ -50,8 +50,8 @@ np.savez_compressed("vdata1-counts-full-metrics-1.npz", lval=loss_validation, lt
 
 train_dict = split_count_and_lensing_maps_by_dataset("Q1", config=config, order=order,
                                                      scramble=True)
-train_dict["x"] = train_dict["x"][:nmaps]
-train_dict["y"] = train_dict["y"][:nmaps]
+train_dict["x"] = train_dict["x"][:nmaps * 12 * order * order]
+train_dict["y"] = train_dict["y"][:nmaps * 12 * order * order]
 
 train = LabeledDataset(train_dict["x"], train_dict["y"])
 
