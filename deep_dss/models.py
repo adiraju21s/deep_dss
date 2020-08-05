@@ -377,9 +377,10 @@ def params_v12(verbose=True, num_epochs=20, learning_rate=1e-4, eval_frequency=3
 
 def params_vdata1(exp_name, input_channels, nmaps, nfilters, verbose=True, num_epochs=20, learning_rate=1e-4,
                   decay_factor=0.999,
-                  order=ORDER, batch_size=32):
+                  order=ORDER, batch_size=16):
     """
     Returns params dict for vdata1 type architectures
+    :param batch_size:
     :param nfilters:
     :param exp_name:
     :param order:
@@ -448,7 +449,7 @@ def params_vdata1(exp_name, input_channels, nmaps, nfilters, verbose=True, num_e
 
 def params_by_architecture(architecture, verbose=True, path_to_checkpoints="", num_epochs=20, learning_rate=1e-4,
                            eval_frequency=3, input_channels=None, nmaps=None, decay_factor=0.999, order=ORDER,
-                           exp_name=None, nfilters=None, batch_size=32):
+                           exp_name=None, nfilters=None, batch_size=16):
     """
     Returns params dict for a specified architecture
     :param batch_size:
@@ -495,7 +496,7 @@ def params_by_architecture(architecture, verbose=True, path_to_checkpoints="", n
 
 def model_by_architecture(architecture, verbose=True, path_to_checkpoints="", num_epochs=20, learning_rate=1e-4,
                           eval_frequency=3, input_channels=None, nmaps=None, decay_factor=0.999, order=ORDER,
-                          exp_name=None, nfilters=None, batch_size=32):
+                          exp_name=None, nfilters=None, batch_size=16):
     """
     Returns DeepSphere model object for a specified architecture
     :param batch_size:
