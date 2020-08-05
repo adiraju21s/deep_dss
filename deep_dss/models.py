@@ -403,7 +403,7 @@ def params_vdata1(exp_name, input_channels, nmaps, nfilters, verbose=True, num_e
     # Architecture.
     params['F'] = [nfilters] * 8  # Graph convolutional layers: number of feature maps.
     params['K'] = [5, 5, 5, 5, 5, 5, 5, 5]  # Polynomial orders.
-    params['batch_norm'] = [True] * 8  # Batch normalization.
+    params['batch_norm'] = [True] * 7 + [False]  # Batch normalization.
     params['M'] = [1]  # Fully connected layers: output dimensionalities.
     params['input_channel'] = input_channels  # Two channels (spherical maps) per sample.
 
