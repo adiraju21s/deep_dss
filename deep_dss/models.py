@@ -377,7 +377,7 @@ def params_v12(verbose=True, num_epochs=20, learning_rate=1e-4, eval_frequency=3
 
 def params_vdata1(exp_name, input_channels, nmaps, nfilters, verbose=True, num_epochs=20, learning_rate=1e-4,
                   decay_factor=0.999,
-                  order=ORDER):
+                  order=ORDER, batch_size=32):
     """
     Returns params dict for vdata1 type architectures
     :param nfilters:
@@ -422,7 +422,7 @@ def params_vdata1(exp_name, input_channels, nmaps, nfilters, verbose=True, num_e
 
     # Training.
     params['num_epochs'] = num_epochs  # Number of passes through the training data.
-    params['batch_size'] = 64  # Constant quantity of information (#pixels) per step (invariant to sample size).
+    params['batch_size'] = batch_size  # Constant quantity of information (#pixels) per step (invariant to sample size).
 
     # Optimization: learning rate schedule and optimizer.
     params['scheduler'] = lambda step: tf.train.exponential_decay(learning_rate, step, decay_steps=1,
@@ -431,7 +431,7 @@ def params_vdata1(exp_name, input_channels, nmaps, nfilters, verbose=True, num_e
     params['loss'] = 'l1'  # Regression loss.
 
     # Number of model evaluations during training (influence training time).
-    params['eval_frequency'] = 12 * order * order * nmaps / 64  # Once per epoch
+    params['eval_frequency'] = 12 * order * order * nmaps / batch_size  # Once per epoch
 
     if verbose:
         print('#sides: {}'.format(nsides))
@@ -448,9 +448,10 @@ def params_vdata1(exp_name, input_channels, nmaps, nfilters, verbose=True, num_e
 
 def params_by_architecture(architecture, verbose=True, path_to_checkpoints="", num_epochs=20, learning_rate=1e-4,
                            eval_frequency=3, input_channels=None, nmaps=None, decay_factor=0.999, order=ORDER,
-                           exp_name=None, nfilters=None):
+                           exp_name=None, nfilters=None, batch_size=32):
     """
     Returns params dict for a specified architecture
+    :param batch_size:
     :param nfilters:
     :param exp_name:
     :param order:
@@ -486,7 +487,7 @@ def params_by_architecture(architecture, verbose=True, path_to_checkpoints="", n
     if architecture == "data1":
         return params_vdata1(exp_name, input_channels, nmaps, nfilters, verbose=verbose, num_epochs=num_epochs,
                              learning_rate=learning_rate, decay_factor=decay_factor,
-                             order=order)
+                             order=order, batch_size=batch_size)
     print("Error: Architecture {} not found".format(architecture))
 
 
@@ -494,9 +495,10 @@ def params_by_architecture(architecture, verbose=True, path_to_checkpoints="", n
 
 def model_by_architecture(architecture, verbose=True, path_to_checkpoints="", num_epochs=20, learning_rate=1e-4,
                           eval_frequency=3, input_channels=None, nmaps=None, decay_factor=0.999, order=ORDER,
-                          exp_name=None, nfilters=None):
+                          exp_name=None, nfilters=None, batch_size=32):
     """
     Returns DeepSphere model object for a specified architecture
+    :param batch_size:
     :param nfilters:
     :param exp_name:
     :param order:
@@ -515,7 +517,7 @@ def model_by_architecture(architecture, verbose=True, path_to_checkpoints="", nu
         **params_by_architecture(architecture, verbose=verbose, path_to_checkpoints=path_to_checkpoints,
                                  num_epochs=num_epochs, learning_rate=learning_rate, eval_frequency=eval_frequency,
                                  input_channels=input_channels, nmaps=nmaps, decay_factor=decay_factor, order=order,
-                                 exp_name=exp_name, nfilters=nfilters))
+                                 exp_name=exp_name, nfilters=nfilters, batch_size=batch_size))
 
 
 # Loss Functions

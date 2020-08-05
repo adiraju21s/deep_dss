@@ -615,7 +615,7 @@ def split_lensing_maps_by_val(sigma8, config="g", coadd=True, corr=None, path_to
         g = split_shear_maps_by_val(sigma8, coadd=coadd, corr=corr, path_to_output=path_to_output, nest=nest, npix=npix,
                                     pixarea=pixarea, density=density, density_0=density_0, multiplier=multiplier,
                                     ellip_sigma=ellip_sigma, noiseless=noiseless, order=order)
-        return np.concatenate((g[0], g[1]), axis=2)
+        return np.stack((g[0], g[1]), axis=2)
     if config == "k":
         return split_convergence_maps_by_val(sigma8, coadd=coadd, corr=corr, path_to_output=path_to_output, nest=nest,
                                              npix=npix,
@@ -630,7 +630,7 @@ def split_lensing_maps_by_val(sigma8, config="g", coadd=True, corr=None, path_to
                                           npix=npix,
                                           pixarea=pixarea, density=density, density_0=density_0, multiplier=multiplier,
                                           ellip_sigma=ellip_sigma, noiseless=noiseless, order=order)
-        return np.concatenate((g[0], g[1], k), axis=2)
+        return np.stack((g[0], g[1], k), axis=2)
     print("Unknown config in deep_dss.utils.split_lensing_maps_by_val. Please try again.")
 
 
