@@ -72,23 +72,23 @@ def path_to_cl(sigma8, name="f1z1f1z1", path_to_input=PATH_TO_INPUT):
     :param path_to_input: Path to flask input directory, ending in / (default assumes data folder in repo)
     :return: relative path string to the appropriate C(l) file
     """
-    return path_to_input + "dss-20-0.28-{0}-1.54Cl-{1}.dat".format(round(sigma8, 3), name)
+    return path_to_input + "dss-20-0.28-{0}-1.54/dss-20-0.28-{0}-1.54Cl-{1}.dat".format(round(sigma8, 3), name)
 
 
-def load_cl_from_path(path, lmax=9999):
+def load_cl_from_path(path, lmax=10000):
     """
     Generate pandas dataframe for a given input C(l) file
     :param path: path to C(l) file
     :param lmax: maximum l value in C(l) file
     :return: data frame containing vector of ls and corresponding C(l) values
     """
-    data = pd.read_csv(path, sep=' ')
+    data = pd.read_csv(path, sep=' ', header=None)
     data.columns = ['L', 'CL']
     data.index = np.arange(lmax + 1)
     return data
 
 
-def load_cl_from_val(sigma8, lmax=9999, name="f1z1f1z1", path_to_input=PATH_TO_INPUT):
+def load_cl_from_val(sigma8, lmax=10000, name="f1z1f1z1", path_to_input=PATH_TO_INPUT):
     """
     Wrapper function to return pandas data frame for a specified C(l)
     :param sigma8: Value of $\\sigma_8$ used to generate the C(l)s
@@ -241,14 +241,15 @@ def load_shear_maps_by_val(sigma8, coadd=True, corr=None, path_to_output=PATH_TO
     :return: List of two Numpy arrays
     """
     if coadd:
-        return [load_map_by_val(sigma8, name="kappa-gamma-f2z1.fits.gz", path_to_output=path_to_output, field=i,
+        return [load_map_by_val(sigma8, name="kappa-gamma-f2z1.fits.gz", path_to_output=path_to_output, field=i + 1,
                                 nest=nest) + load_map_by_val(sigma8, name="kappa-gamma-f2z2.fits.gz",
-                                                             path_to_output=path_to_output, field=i, nest=nest) for i in
+                                                             path_to_output=path_to_output, field=i + 1, nest=nest) for
+                i in
                 range(2)]
     if corr:
-        return [load_map_by_val(sigma8, name="kappa-gamma-f2z1.fits.gz", path_to_output=path_to_output, field=i,
+        return [load_map_by_val(sigma8, name="kappa-gamma-f2z1.fits.gz", path_to_output=path_to_output, field=i + 1,
                                 nest=nest) for i in range(2)]
-    return [load_map_by_val(sigma8, name="kappa-gamma-f2z2.fits.gz", path_to_output=path_to_output, field=i,
+    return [load_map_by_val(sigma8, name="kappa-gamma-f2z2.fits.gz", path_to_output=path_to_output, field=i + 1,
                             nest=nest) for i in range(2)]
 
 
@@ -263,13 +264,13 @@ def load_convergence_map_by_val(sigma8, coadd=True, corr=None, path_to_output=PA
     :return: Numpy array storing HEALPIX map
     """
     if coadd:
-        return load_map_by_val(sigma8, name="kappa-gamma-f2z1.fits.gz", path_to_output=path_to_output, field=2,
+        return load_map_by_val(sigma8, name="kappa-gamma-f2z1.fits.gz", path_to_output=path_to_output, field=0,
                                nest=nest) + load_map_by_val(sigma8, name="kappa-gamma-f2z2.fits.gz",
-                                                            path_to_output=path_to_output, field=2, nest=nest)
+                                                            path_to_output=path_to_output, field=0, nest=nest)
     if corr:
-        return load_map_by_val(sigma8, name="kappa-gamma-f2z1.fits.gz", path_to_output=path_to_output, field=2,
+        return load_map_by_val(sigma8, name="kappa-gamma-f2z1.fits.gz", path_to_output=path_to_output, field=0,
                                nest=nest)
-    return load_map_by_val(sigma8, name="kappa-gamma-f2z2.fits.gz", path_to_output=path_to_output, field=2,
+    return load_map_by_val(sigma8, name="kappa-gamma-f2z2.fits.gz", path_to_output=path_to_output, field=0,
                            nest=nest)
 
 

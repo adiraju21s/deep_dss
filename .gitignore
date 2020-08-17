@@ -56,3 +56,5 @@ summaries/
 metrics/
 
 validation_101.npz
+
+notebooks/input
