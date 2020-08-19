@@ -1,6 +1,6 @@
 language: python
 python:
-- '3.7'
+- '3.8'
 install:
   - sudo apt update
   # We do this conditionally because it saves us some downloading if the
