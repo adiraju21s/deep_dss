@@ -51,6 +51,8 @@ output/*/index.html
 
 data/
 
+notebooks/
+
 checkpoints/
 summaries/
 metrics/
