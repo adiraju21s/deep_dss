@@ -18,7 +18,7 @@ def params_v2(verbose=True, path_to_checkpoints=""):
     :return: Params dict for DeepSphere model
     """
     params = dict()
-    params['dir_name'] = path_to_checkpoints + "flask-101-v2"
+    params['dir_name'] = path_to_checkpoints + "flask101-101-v2"
 
     # Types of layers.
     params['conv'] = 'chebyshev5'  # Graph convolution: chebyshev5 or monomials.
@@ -79,7 +79,7 @@ def params_v8(verbose=True, path_to_checkpoints=""):
     :return: Params dict for DeepSphere model
     """
     params = dict()
-    params['dir_name'] = path_to_checkpoints + "flask-101-v8"
+    params['dir_name'] = path_to_checkpoints + "flask101-101-v8"
 
     # Types of layers.
     params['conv'] = 'chebyshev5'  # Graph convolution: chebyshev5 or monomials.
@@ -139,7 +139,7 @@ def params_v9(verbose=True, path_to_checkpoints=""):
     :return: Params dict for DeepSphere model
     """
     params = dict()
-    params['dir_name'] = path_to_checkpoints + "flask-101-v9"
+    params['dir_name'] = path_to_checkpoints + "flask101-101-v9"
 
     # Types of layers.
     params['conv'] = 'chebyshev5'  # Graph convolution: chebyshev5 or monomials.
@@ -199,7 +199,7 @@ def params_v10(verbose=True, path_to_checkpoints=""):
     :return: Params dict for DeepSphere model
     """
     params = dict()
-    params['dir_name'] = path_to_checkpoints + "flask-101-v10"
+    params['dir_name'] = path_to_checkpoints + "flask101-101-v10"
 
     # Types of layers.
     params['conv'] = 'chebyshev5'  # Graph convolution: chebyshev5 or monomials.
@@ -261,7 +261,7 @@ def params_v11(verbose=True, num_epochs=20, learning_rate=1e-4, eval_frequency=3
     :return: Params dict for DeepSphere model
     """
     params = dict()
-    params['dir_name'] = "flask-101-v11"
+    params['dir_name'] = "flask101-101-v11"
 
     # Types of layers.
     params['conv'] = 'chebyshev5'  # Graph convolution: chebyshev5 or monomials.
@@ -323,7 +323,7 @@ def params_v12(verbose=True, num_epochs=20, learning_rate=1e-4, eval_frequency=3
     :return: Params dict for DeepSphere model
     """
     params = dict()
-    params['dir_name'] = "flask-101-v12"
+    params['dir_name'] = "flask101-101-v12"
 
     # Types of layers.
     params['conv'] = 'chebyshev5'  # Graph convolution: chebyshev5 or monomials.
@@ -393,7 +393,7 @@ def params_vdata1(exp_name, input_channels, nmaps, nfilters, verbose=True, num_e
     :return: Params dict for DeepSphere model
     """
     params = dict()
-    params['dir_name'] = "flask-101-vdata1-{}".format(exp_name)
+    params['dir_name'] = "flask101-101-vdata1-{}".format(exp_name)
 
     # Types of layers.
     params['conv'] = 'chebyshev5'  # Graph convolution: chebyshev5 or monomials.
