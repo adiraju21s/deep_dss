@@ -428,6 +428,7 @@ def params_vdata1(exp_name, input_channels, nmaps, nfilters, verbose=True, num_e
     # Optimization: learning rate schedule and optimizer.
     params['scheduler'] = lambda step: tf.train.exponential_decay(learning_rate, step, decay_steps=1,
                                                                   decay_rate=decay_factor)
+    # params['scheduler'] = lambda step: learning_rate
     params['optimizer'] = lambda lr: tf.train.AdamOptimizer(lr, beta1=0.9, beta2=0.999, epsilon=1e-8)
     params['loss'] = 'l1'  # Regression loss.
 
