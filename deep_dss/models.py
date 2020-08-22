@@ -1,11 +1,11 @@
-from deep_dss.utils import set_constants, set_paths, MACHINE
+from deep_dss.utils import set_constants, set_paths
 from deepsphere import utils, models
 import tensorflow as tf
 import numpy as np
 
 (NSIDE, NPIX, PIXEL_AREA, ORDER, BIAS, DENSITY_M, DENSITY_KG, ELLIP_SIGMA) = set_constants()
 
-(PATH_TO_INPUT, PATH_TO_OUTPUT, PATH_TO_CHECKPOINTS, PATH_TO_VAL) = set_paths(MACHINE)
+(PATH_TO_INPUT, PATH_TO_OUTPUT, PATH_TO_CHECKPOINTS, PATH_TO_VAL) = set_paths()
 
 
 # Model parameters
