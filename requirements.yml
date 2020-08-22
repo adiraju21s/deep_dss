@@ -3,6 +3,7 @@ channels:
   - conda-forge
   - defaults
 dependencies:
+  - appnope=0.1.0
   - attrs=19.3.0
   - backcall=0.2.0
   - backports=1.0
@@ -27,7 +28,9 @@ dependencies:
   - libedit=3.1.20191231
   - libev=4.33
   - libffi=3.2.1
+  - libgfortran=4.0.0
   - liblapack=3.8.0
+  - libllvm10=10.0.1
   - libnghttp2=1.41.0
   - libopenblas=0.3.10
   - libsharp=1.0.0

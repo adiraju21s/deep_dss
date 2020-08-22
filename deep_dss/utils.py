@@ -29,37 +29,27 @@ def set_constants():
 
 (NSIDE, NPIX, PIXEL_AREA, ORDER, BIAS, DENSITY_M, DENSITY_KG, ELLIP_SIGMA) = set_constants()
 
-MACHINE = "LOCAL"
+
+# MACHINE = "LOCAL"
 
 
 # MACHINE = "BRIDGES"
 
 
-def set_paths(machine):
+def set_paths():
     """
     Sets directory paths based on the machine being used
     :return: PATH_TO_INPUT, PATH_TO_OUTPUT, PATH_TO_CHECKPOINTS and PATH_TO_VAL
     """
-    path_to_input = ""
-    path_to_output = ""
+    path_to_input = "../data/flaskv2/input/"
+    path_to_output = "../data/flaskv2/output/"
     path_to_checkpoints = ""
-    path_to_val = ""
-    if machine == "LOCAL":
-        path_to_input = "../data/flask101/input/"
-        path_to_output = "../data/flask101/output/"
-        path_to_checkpoints = ""
-        path_to_val = "../validation_101.npz"
-    elif machine == "BRIDGES":
-        path_to_input = "/pylon5/ch4s8kp/adiraj21/flaskwrapper/input/"
-        path_to_output = "/pylon5/ch4s8kp/adiraj21/flaskwrapper/output/"
-        path_to_checkpoints = ""
-        path_to_val = "/pylon5/ch4s8kp/adiraj21/DeepSphere/validation_101.npz"
-    else:
-        print("Invalid machine configuration for set_paths(). Please try again.")
+    path_to_val = "../validation_101.npz"
+
     return path_to_input, path_to_output, path_to_checkpoints, path_to_val
 
 
-(PATH_TO_INPUT, PATH_TO_OUTPUT, PATH_TO_CHECKPOINTS, PATH_TO_VAL) = set_paths(MACHINE)
+(PATH_TO_INPUT, PATH_TO_OUTPUT, PATH_TO_CHECKPOINTS, PATH_TO_VAL) = set_paths()
 
 
 # C(l) helper functions
@@ -72,7 +62,7 @@ def path_to_cl(sigma8, name="f1z1f1z1", path_to_input=PATH_TO_INPUT):
     :param path_to_input: Path to flask101 input directory, ending in / (default assumes data folder in repo)
     :return: relative path string to the appropriate C(l) file
     """
-    return path_to_input + "dss-20-0.28-{0}-1.54/dss-20-0.28-{0}-1.54Cl-{1}.dat".format(round(sigma8, 3), name)
+    return path_to_input + "dss-{0}/dss-{0}-Cl-{1}.dat".format(round(sigma8, 5), name)
 
 
 def load_cl_from_path(path, lmax=10000):
@@ -107,7 +97,7 @@ def full_cosmologies_list():
     Return the full list of $\\sigma_8$ values in the simulated data
     :return: A numpy array covering all 101 $\\sigma_8$ values in the flat prior
     """
-    return np.linspace(0.5, 1.2, num=101)
+    return np.linspace(0.5, 1.2, num=201)
 
 
 def q1_cosmologies_list():
@@ -115,9 +105,12 @@ def q1_cosmologies_list():
     Return the list of $\\sigma_8$ values used in training Q1
     :return: A numpy array of 20 $\\sigma_8$ values
     """
-    return np.array([1.165, 0.766, 1.095, 0.976, 0.99, 0.773, 0.57, 0.64, 0.563,
-                     1.193, 0.584, 0.542, 1.109, 0.969, 0.983, 0.675, 1.039, 0.927,
-                     1.032, 1.06])
+    return np.array([0.7345, 0.969, 0.6435, 0.654, 1.1895, 1.06, 1.109, 0.703,
+                     1.032, 1.1615, 1.0705, 0.759, 0.5175, 0.885, 0.9515, 0.6295,
+                     0.7415, 0.605, 0.5875, 0.7205, 0.7065, 1.1685, 0.773, 1.179,
+                     0.577, 0.857, 1.1195, 1.123, 1.1965, 0.843, 0.7975, 0.5245,
+                     1.172, 0.99, 0.892, 0.7485, 0.955, 0.528, 1.0845, 1.1265,
+                     1.0005, 0.8535, 0.5, 0.9165, 0.5105])
 
 
 def q2_cosmologies_list():
@@ -125,9 +118,12 @@ def q2_cosmologies_list():
     Return the list of $\\sigma_8$ values used in training Q2
     :return: A numpy array of 20 $\\sigma_8$ values
     """
-    return np.array([0.843, 0.857, 0.535, 1.186, 1.144, 0.906, 0.962, 1.067, 0.815,
-                     0.822, 0.717, 0.808, 1.13, 1.004, 0.626, 1.123, 0.724, 0.913,
-                     0.696, 0.745])
+    return np.array([0.5035, 1.025, 0.6995, 0.5385, 0.6015, 1.018, 0.829, 0.927,
+                     0.7905, 1.095, 0.9655, 0.5595, 1.165, 0.6645, 0.724, 0.6155,
+                     1.039, 0.78, 0.941, 0.633, 1.186, 1.193, 1.0635, 0.8675,
+                     1.151, 0.8815, 1.0775, 0.563, 0.6925, 0.7555, 1.1755, 1.1335,
+                     0.696, 0.801, 0.864, 0.598, 1.158, 0.8955, 0.5315, 1.0355,
+                     0.899, 1.046, 0.542, 1.0215, 1.1825])
 
 
 def q3_cosmologies_list():
@@ -135,9 +131,12 @@ def q3_cosmologies_list():
     Return the list of $\\sigma_8$ values used in training Q3
     :return: A numpy array of 20 $\\sigma_8$ values
     """
-    return np.array([0.829, 0.605, 0.647, 1.088, 0.864, 0.92, 0.661, 0.997, 0.955,
-                     1.053, 0.759, 0.703, 0.934, 0.738, 0.752, 1.018, 0.794, 0.619,
-                     0.892, 1.116])
+    return np.array([0.8395, 0.689, 0.8465, 0.6365, 1.0145, 0.6785, 1.004, 1.1055,
+                     1.053, 0.57, 1.0495, 0.8255, 0.668, 1.137, 0.5805, 0.9235,
+                     0.619, 0.661, 0.7695, 0.7765, 0.9375, 0.836, 0.591, 0.906,
+                     1.1545, 0.8745, 0.766, 0.675, 0.8885, 0.9095, 1.102, 0.92,
+                     0.556, 1.011, 1.0075, 0.6225, 0.5455, 0.6715, 0.626, 0.983,
+                     0.738, 0.71, 0.8325, 0.962, 0.822])
 
 
 def q4_cosmologies_list():
@@ -145,9 +144,12 @@ def q4_cosmologies_list():
     Return the list of $\\sigma_8$ values used in training Q4
     :return: A numpy array of 20 $\\sigma_8$ values
     """
-    return np.array([0.787, 0.5, 0.836, 0.577, 1.179, 0.899, 0.598, 0.78, 0.941,
-                     0.528, 1.2, 1.081, 0.948, 0.507, 0.633, 0.85, 1.137, 0.689,
-                     1.074, 0.521])
+    return np.array([1.1475, 0.5525, 0.85, 0.9445, 0.7835, 0.549, 0.794, 0.815,
+                     0.9585, 0.6575, 0.9935, 1.067, 0.8605, 0.514, 1.0985, 1.0285,
+                     0.612, 1.1405, 1.081, 0.948, 0.6085, 0.934, 0.731, 0.7275,
+                     0.5945, 0.913, 0.787, 1.0425, 0.7135, 0.808, 1.074, 0.8185,
+                     0.6505, 0.9725, 0.976, 0.9025, 0.8045, 0.584, 0.535, 0.717,
+                     0.64, 1.1125, 0.745, 0.7625, 0.521])
 
 
 def test_cosmologies_list():
@@ -155,9 +157,9 @@ def test_cosmologies_list():
     Return the list of $\\sigma_8$ values used in testing
     :return: A numpy array of 21 $\\sigma_8$ values
     """
-    return np.array([0.682, 1.102, 0.514, 0.885, 1.025, 1.158, 0.612, 1.011, 0.878,
-                     1.172, 0.871, 1.151, 1.046, 0.591, 0.549, 0.71, 0.654, 0.668,
-                     0.731, 0.556, 0.801])
+    return np.array([1.144, 0.9865, 0.6855, 1.088, 1.116, 0.682, 1.0565, 0.752,
+                     0.9305, 1.0915, 0.5665, 0.647, 0.871, 0.9795, 1.2, 1.13,
+                     0.5735, 0.997, 0.878, 0.507, 0.8115])
 
 
 def cosmologies_list(dataset):
@@ -202,7 +204,7 @@ def path_to_map(sigma8, name="map-f1z1.fits.gz", path_to_output=PATH_TO_OUTPUT):
     :param path_to_output: Relative path to the FLASK output directory
     :return: String with path
     """
-    return path_to_output + "dss-20-0.28-{0}-1.54/{1}".format(round(sigma8, 3), name)
+    return path_to_output + "dss-{0}/dss-{0}-{1}".format(round(sigma8, 5), name)
 
 
 def load_map_by_path(path, field=0, nest=True):
