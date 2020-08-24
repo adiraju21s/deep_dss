@@ -25,7 +25,7 @@ k = 64
 step = int(sys.argv[1])
 
 val_dict = split_count_and_lensing_maps_by_dataset("TEST", config=config, order=order,
-                                                   scramble=True, noiseless_m=True, noiseless_kg=True)
+                                                   scramble=True)
 val_dict["x"] = val_dict["x"][:64]
 val_dict["y"] = val_dict["y"][:64]
 
@@ -34,12 +34,12 @@ val = LabeledDataset(val_dict["x"], val_dict["y"])
 
 def train_one_quartile_epoch(quartile, lr, iteration):
     train_dict = split_count_and_lensing_maps_by_dataset(quartile, config=config, order=order,
-                                                         scramble=True, noiseless_m=True, noiseless_kg=True)
+                                                         scramble=True)
 
     train = LabeledDataset(train_dict["x"], train_dict["y"])
 
-    model = model_by_architecture("data1", num_epochs=1, learning_rate=lr, input_channels=channels, nmaps=20,
-                                  order=order, exp_name="final2-noiseless", nfilters=k)
+    model = model_by_architecture("data1", num_epochs=1, learning_rate=lr, input_channels=channels, nmaps=15,
+                                  order=order, exp_name="final2-noisy-lowlr", nfilters=k)
 
     if iteration == 1 and quartile == "Q1":
         accuracy_validation, loss_validation, loss_training, t_step = model.fit(train, val)
@@ -47,11 +47,12 @@ def train_one_quartile_epoch(quartile, lr, iteration):
         accuracy_validation, loss_validation, loss_training, t_step = model.fit(train, val,
                                                                                 session=model._get_session())
 
-    np.savez_compressed("vdata1-final2-noiseless-metrics-{0}-{1}.npz".format(iteration, quartile), lval=loss_validation,
+    np.savez_compressed("vdata1-final2-noisy-lowlr-metrics-{0}-{1}.npz".format(iteration, quartile),
+                        lval=loss_validation,
                         ltrain=loss_training, t=t_step)
 
 
-def learning_rate(n, q, initial_rate=1e-4, epoch_decay_factor=0.999 ** 539, quartile_decay_factor=0.999 ** 134):
+def learning_rate(n, q, initial_rate=1e-5, epoch_decay_factor=0.999 ** 539, quartile_decay_factor=0.999 ** 134):
     return initial_rate * epoch_decay_factor ** n * quartile_decay_factor ** q
 
 

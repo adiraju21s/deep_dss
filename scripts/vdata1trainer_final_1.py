@@ -38,8 +38,8 @@ def train_one_quartile_epoch(quartile, lr, iteration):
 
     train = LabeledDataset(train_dict["x"], train_dict["y"])
 
-    model = model_by_architecture("data1", num_epochs=1, learning_rate=lr, input_channels=channels, nmaps=20,
-                                  order=order, exp_name="final-noisy", nfilters=k)
+    model = model_by_architecture("data1", num_epochs=1, learning_rate=lr, input_channels=channels, nmaps=15,
+                                  order=order, exp_name="final2-noisy", nfilters=k)
 
     if iteration == 1 and quartile == "Q1":
         accuracy_validation, loss_validation, loss_training, t_step = model.fit(train, val)
@@ -47,11 +47,11 @@ def train_one_quartile_epoch(quartile, lr, iteration):
         accuracy_validation, loss_validation, loss_training, t_step = model.fit(train, val,
                                                                                 session=model._get_session())
 
-    np.savez_compressed("vdata1-final-noisy-metrics-{0}-{1}.npz".format(iteration, quartile), lval=loss_validation,
+    np.savez_compressed("vdata1-final2-noisy-metrics-{0}-{1}.npz".format(iteration, quartile), lval=loss_validation,
                         ltrain=loss_training, t=t_step)
 
 
-def learning_rate(n, q, initial_rate=1e-4, epoch_decay_factor=0.8, quartile_decay_factor=1):
+def learning_rate(n, q, initial_rate=1e-4, epoch_decay_factor=0.999 ** 539, quartile_decay_factor=0.999 ** 134):
     return initial_rate * epoch_decay_factor ** n * quartile_decay_factor ** q
 
 

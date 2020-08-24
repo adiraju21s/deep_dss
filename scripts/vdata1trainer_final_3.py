@@ -39,7 +39,7 @@ def train_one_noiseless_quartile_epoch(quartile, lr, iteration):
     train = LabeledDataset(train_dict["x"], train_dict["y"])
 
     model = model_by_architecture("data1", num_epochs=1, learning_rate=lr, input_channels=channels, nmaps=20,
-                                  order=order, exp_name="final-mixed", nfilters=k)
+                                  order=order, exp_name="final2-mixed", nfilters=k)
 
     if iteration == 1 and quartile == "Q1":
         accuracy_validation, loss_validation, loss_training, t_step = model.fit(train, val)
@@ -47,7 +47,7 @@ def train_one_noiseless_quartile_epoch(quartile, lr, iteration):
         accuracy_validation, loss_validation, loss_training, t_step = model.fit(train, val,
                                                                                 session=model._get_session())
 
-    np.savez_compressed("vdata1-final-mixed-metrics-{0}-{1}.npz".format(iteration, quartile), lval=loss_validation,
+    np.savez_compressed("vdata1-final2-mixed-metrics-{0}-{1}.npz".format(iteration, quartile), lval=loss_validation,
                         ltrain=loss_training, t=t_step)
 
 
@@ -58,7 +58,7 @@ def train_one_noisy_quartile_epoch(quartile, lr, iteration):
     train = LabeledDataset(train_dict["x"], train_dict["y"])
 
     model = model_by_architecture("data1", num_epochs=1, learning_rate=lr, input_channels=channels, nmaps=20,
-                                  order=order, exp_name="final-mixed", nfilters=k)
+                                  order=order, exp_name="final2-mixed", nfilters=k)
 
     if iteration == 1 and quartile == "Q1":
         accuracy_validation, loss_validation, loss_training, t_step = model.fit(train, val)
@@ -66,7 +66,7 @@ def train_one_noisy_quartile_epoch(quartile, lr, iteration):
         accuracy_validation, loss_validation, loss_training, t_step = model.fit(train, val,
                                                                                 session=model._get_session())
 
-    np.savez_compressed("vdata1-final-mixed-metrics-{0}-{1}.npz".format(iteration, quartile), lval=loss_validation,
+    np.savez_compressed("vdata1-final2-mixed-metrics-{0}-{1}.npz".format(iteration, quartile), lval=loss_validation,
                         ltrain=loss_training, t=t_step)
 
 
@@ -77,7 +77,10 @@ def train_one_quartile_epoch(quartile, lr, iteration):
         train_one_noiseless_quartile_epoch(quartile, lr, iteration)
 
 
-def learning_rate(n, q, initial_rate=1e-4, epoch_decay_factor=0.8, quartile_decay_factor=1):
+def learning_rate(n, q, initial_rate=1e-4, initial_rate2=2e-5, epoch_decay_factor=0.999 ** 539,
+                  quartile_decay_factor=0.999 ** 134):
+    if n > 5:
+        return initial_rate2 * epoch_decay_factor ** n * quartile_decay_factor ** q
     return initial_rate * epoch_decay_factor ** n * quartile_decay_factor ** q
 
 

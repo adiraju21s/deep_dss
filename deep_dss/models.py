@@ -433,7 +433,7 @@ def params_vdata1(exp_name, input_channels, nmaps, nfilters, verbose=True, num_e
     params['loss'] = 'l1'  # Regression loss.
 
     # Number of model evaluations during training (influence training time).
-    params['eval_frequency'] = 12 * order * order * nmaps / batch_size  # Once per epoch
+    params['eval_frequency'] = (12 * order * order * nmaps / batch_size) / 3  # Thrice per epoch
 
     if verbose:
         print('#sides: {}'.format(nsides))
