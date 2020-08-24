@@ -393,7 +393,7 @@ def params_vdata1(exp_name, input_channels, nmaps, nfilters, verbose=True, num_e
     :return: Params dict for DeepSphere model
     """
     params = dict()
-    params['dir_name'] = "flask101-101-vdata1-{}".format(exp_name)
+    params['dir_name'] = "flaskv2-vdata1-{}".format(exp_name)
 
     # Types of layers.
     params['conv'] = 'chebyshev5'  # Graph convolution: chebyshev5 or monomials.
