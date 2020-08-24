@@ -47,7 +47,8 @@ def train_one_noiseless_quartile_epoch(quartile, lr, iteration):
         accuracy_validation, loss_validation, loss_training, t_step = model.fit(train, val,
                                                                                 session=model._get_session())
 
-    np.savez_compressed("vdata1-final2-mixed-metrics-{0}-{1}.npz".format(iteration, quartile), lval=loss_validation,
+    np.savez_compressed("../metrics/vdata1-final2-mixed-metrics-{0}-{1}.npz".format(iteration, quartile),
+                        lval=loss_validation,
                         ltrain=loss_training, t=t_step)
 
 
@@ -66,7 +67,8 @@ def train_one_noisy_quartile_epoch(quartile, lr, iteration):
         accuracy_validation, loss_validation, loss_training, t_step = model.fit(train, val,
                                                                                 session=model._get_session())
 
-    np.savez_compressed("vdata1-final2-mixed-metrics-{0}-{1}.npz".format(iteration, quartile), lval=loss_validation,
+    np.savez_compressed("../metrics/vdata1-final2-mixed-metrics-{0}-{1}.npz".format(iteration, quartile),
+                        lval=loss_validation,
                         ltrain=loss_training, t=t_step)
 
 
