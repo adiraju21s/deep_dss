@@ -1,4 +1,4 @@
-from deep_dss.utils import path_to_cl
+from deep_dss.helpers import path_to_cl
 
 
 class TestUtils:

@@ -1,4 +1,4 @@
-from deep_dss.utils import set_constants, set_paths
+from deep_dss.helpers import set_constants, set_paths
 from deepsphere import utils, models
 import tensorflow as tf
 import numpy as np

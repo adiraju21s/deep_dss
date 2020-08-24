@@ -1,6 +1,6 @@
 import os
 
-from deep_dss.utils import *
+from deep_dss.helpers import *
 from deep_dss.models import *
 
 import numpy as np
