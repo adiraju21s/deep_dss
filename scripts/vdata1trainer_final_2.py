@@ -38,7 +38,7 @@ def train_one_quartile_epoch(quartile, lr, iteration):
 
     train = LabeledDataset(train_dict["x"], train_dict["y"])
 
-    model = model_by_architecture("data1", num_epochs=1, learning_rate=lr, input_channels=channels, nmaps=20,
+    model = model_by_architecture("data1", num_epochs=1, learning_rate=lr, input_channels=channels, nmaps=45,
                                   order=order, exp_name="final2-noiseless", nfilters=k)
 
     if iteration == 1 and quartile == "Q1":
