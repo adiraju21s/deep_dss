@@ -24,15 +24,15 @@ k = 64
 
 step = int(sys.argv[1])
 
-val_dict = split_count_and_lensing_maps_by_dataset("TEST", config=config, order=order,
-                                                   scramble=True, noiseless_m=True, noiseless_kg=True)
-val_dict["x"] = val_dict["x"][:64]
-val_dict["y"] = val_dict["y"][:64]
-
-val = LabeledDataset(val_dict["x"], val_dict["y"])
-
 
 def train_one_noiseless_quartile_epoch(quartile, lr, iteration):
+    val_dict = split_count_and_lensing_maps_by_dataset("TEST", config=config, order=order,
+                                                       scramble=True, noiseless_m=True, noiseless_kg=True)
+    val_dict["x"] = val_dict["x"][:64]
+    val_dict["y"] = val_dict["y"][:64]
+
+    val = LabeledDataset(val_dict["x"], val_dict["y"])
+
     train_dict = split_count_and_lensing_maps_by_dataset(quartile, config=config, order=order,
                                                          scramble=True, noiseless_m=True, noiseless_kg=True)
 
@@ -53,6 +53,13 @@ def train_one_noiseless_quartile_epoch(quartile, lr, iteration):
 
 
 def train_one_noisy_quartile_epoch(quartile, lr, iteration):
+    val_dict = split_count_and_lensing_maps_by_dataset("TEST", config=config, order=order,
+                                                       scramble=True)
+    val_dict["x"] = val_dict["x"][:64]
+    val_dict["y"] = val_dict["y"][:64]
+
+    val = LabeledDataset(val_dict["x"], val_dict["y"])
+
     train_dict = split_count_and_lensing_maps_by_dataset(quartile, config=config, order=order,
                                                          scramble=True)
 
