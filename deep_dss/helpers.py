@@ -100,6 +100,22 @@ def full_cosmologies_list():
     return np.linspace(0.5, 1.2, num=201)
 
 
+def lite_train_cosmologies_list():
+    """
+    Return the list of $\\sigma_8$ values used in training lite
+    :return: A numpy array of 7 $\\sigma_8$ values
+    """
+    return np.array([0.5, 0.64, 0.71, 0.85, 0.92, 1.06, 1.13])
+
+
+def lite_test_cosmologies_list():
+    """
+    Return the list of $\\sigma_8$ values used in testing lite
+    :return: A numpy array of 4 $\\sigma_8$ values
+    """
+    return np.array([0.57, 0.78, 0.99, 1.2])
+
+
 def q1_cosmologies_list():
     """
     Return the list of $\\sigma_8$ values used in training Q1
@@ -166,7 +182,7 @@ def cosmologies_list(dataset):
     """
     Returns list of $\\sigma_8$ values for an input data set
     :param dataset: Name of data set
-    :return: Numpy array of 20, 21, or 101 values
+    :return: Numpy array of 4, 7, 20, 21, or 101 values
     """
     if dataset == "Q1":
         return q1_cosmologies_list()
@@ -180,6 +196,10 @@ def cosmologies_list(dataset):
         return test_cosmologies_list()
     if dataset == "FULL":
         return full_cosmologies_list()
+    if dataset == "TRAINLITE":
+        return lite_train_cosmologies_list()
+    if dataset == "TESTLITE":
+        return lite_test_cosmologies_list()
     print("Invalid data set specification. Please try again")
 
 
