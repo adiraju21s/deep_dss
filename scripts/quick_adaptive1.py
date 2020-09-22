@@ -23,6 +23,8 @@ k = 64
 
 
 def density_kg_by_iter(noise_level, initial_width=0, delta_width=0.005, sigma_k=0.25, nside=1024):
+    if noise_level == 0:
+        return 1000
     sigma = initial_width + delta_width * noise_level
     return sigma_k ** 2 / (2 * hp.nside2pixarea(nside) * 3600 * (sigma ** 2))
 
