@@ -236,7 +236,7 @@
 #         return sparse.identity(d.shape[0], dtype=dtype) - D12 * W * D12
 #     else:
 #         raise ValueError('Unknown Laplacian type {}'.format(lap_type))
-# 
+#
 #
 # def healpix_graph(nside=16,
 #                   nest=True,
