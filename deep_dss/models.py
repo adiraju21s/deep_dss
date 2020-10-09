@@ -638,7 +638,7 @@ def model_by_architecture(architecture, verbose=True, path_to_checkpoints="", nu
                                  exp_name=exp_name, nfilters=nfilters, batch_size=batch_size))
 
 
-def model_v2_biasless(exp_name, convtype='chebyshev5', pooltype='max', nmaps=20,
+def model_v2_biasless(exp_name, convtype='chebyshev5', pooltype='max', nmaps=16,
                        activation_func='relu', stat_layer=None, input_channels=1,
                        gc_depth=8, nfilters=64,
                        const_k=5, var_k=None,
@@ -646,7 +646,7 @@ def model_v2_biasless(exp_name, convtype='chebyshev5', pooltype='max', nmaps=20,
                        var_batch_norm=None,
                        fc_layers=[], num_outputs=1,
                        reg_factor=0, dropout_rate=0.8,
-                       verbose=True, num_epochs=20,
+                       verbose=True, num_epochs=1,
                        learning_rate=1e-4,
                        decay_factor=0.999, decay_freq=1,
                        decay_staircase=False, loss_func="l1",
