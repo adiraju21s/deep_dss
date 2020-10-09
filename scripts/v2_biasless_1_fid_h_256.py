@@ -58,10 +58,10 @@ def train_one_epoch(lr, noise_level, iteration):
 
     val = LabeledDataset(val_dict["x"], val_dict["y"])
 
-    model = model_v2_biaseless(exp_name="1-fid-h-256", gc_depth=12,
-                               nsides=[1024, 1024, 512, 512, 256, 256, 128, 128, 64, 32, 16, 8, 4],
-                               filters=[32] * 6 + [64] * 6, var_k=[5] * 6 + [10] * 6,
-                               fc_layers=[256], learning_rate=lr)
+    model = model_v2_biasless(exp_name="1-fid-h-256", gc_depth=12,
+                              nsides=[1024, 1024, 512, 512, 256, 256, 128, 128, 64, 32, 16, 8, 4],
+                              filters=[32] * 6 + [64] * 6, var_k=[5] * 6 + [10] * 6,
+                              fc_layers=[256], learning_rate=lr)
 
     if noise_level == 0 and iteration == 0:
         accuracy_validation, loss_validation, loss_training, t_step = model.fit(train, val)
