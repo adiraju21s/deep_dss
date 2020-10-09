@@ -518,7 +518,7 @@ def params_v2_biasless(exp_name, convtype='chebyshev5', pooltype='max', nmaps=16
         var_batch_norm = [True] * (gc_depth - 1) + [batch_norm_output]
 
     if nsides is None:
-        nsides = [nside // 2 ^ i for i in range(gc_depth + 1)]
+        nsides = [nside // (2 ** i) for i in range(gc_depth + 1)]
 
     params['F'] = filters  # Graph convolutional layers: number of feature maps.
     params['K'] = var_k  # Polynomial orders.
