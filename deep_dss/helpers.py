@@ -103,9 +103,12 @@ def full_cosmologies_list():
 def lite_train_cosmologies_list():
     """
     Return the list of $\\sigma_8$ values used in training lite
-    :return: A numpy array of 7 $\\sigma_8$ values
+    :return: A numpy array of 16 $\\sigma_8$ values
     """
-    return np.array([0.5, 0.57, 0.71, 0.78, 0.92, 0.99, 1.13, 1.2])
+    # return np.array([0.5, 0.57, 0.71, 0.78, 0.92, 0.99, 1.13, 1.2])
+    return np.array([0.535, 0.605, 0.64, 0.675, 0.71, 0.78,
+                     0.815, 0.85, 0.885, 0.955, 0.99, 1.025, 1.06,
+                     1.13, 1.165, 1.2])
 
 
 def lite_test_cosmologies_list():
@@ -113,7 +116,8 @@ def lite_test_cosmologies_list():
     Return the list of $\\sigma_8$ values used in testing lite
     :return: A numpy array of 4 $\\sigma_8$ values
     """
-    return np.array([0.64, 0.85, 1.06])
+    # return np.array([0.64, 0.85, 1.06])
+    return np.array([0.57, 0.745, 0.92, 1.095])
 
 
 def q1_cosmologies_list():

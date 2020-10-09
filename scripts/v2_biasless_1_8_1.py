@@ -20,17 +20,22 @@ def total_channels(c):
 config = "k"
 channels = total_channels(config)
 order = 2
-k = 64
 
-min_or_max = sys.argv[1]
-threshold = float(sys.argv[2])
-duration = int(sys.argv[3])
+start_level = int(sys.argv[1])
+start_it = int(sys.argv[2])
+noise_levels = int(sys.argv[3])
+ilr = float(sys.argv[4])
+decay_noise = float(sys.argv[5])
+decay_train = float(sys.argv[6])
+duration = 1
+threshold = 0.04
 
 
-def density_kg_by_iter(noise_level, initial_width=0, delta_width=0.005, sigma_e=0.25, nside=1024):
+# nlevels includes the noiseless level!
+def density_kg_by_iter(noise_level, initial_width=0, target_width=0.025, nlevels=6, sigma_e=0.25, nside=1024):
     if noise_level == 0:
         return 1000
-    sigma = initial_width + delta_width * noise_level
+    sigma = initial_width + noise_level * (target_width - initial_width) / (nlevels - 1)
     return sigma_e ** 2 / (2 * hp.nside2pixarea(nside, degrees=True) * 3600 * (sigma ** 2))
 
 
@@ -53,9 +58,9 @@ def train_one_epoch(lr, noise_level, iteration):
 
     val = LabeledDataset(val_dict["x"], val_dict["y"])
 
-    model = model_by_architecture("data1", num_epochs=1, learning_rate=lr, decay_factor=1, input_channels=channels,
-                                  nmaps=8,
-                                  order=order, exp_name="adaptive1-1", nfilters=k)
+    model = model_v2_biasless(exp_name="1-8-1", gc_depth=8,
+                              filters=[32] * 4 + [64] * 4, var_k=[5] * 4 + [10] * 4,
+                              learning_rate=lr)
 
     if noise_level == 0 and iteration == 0:
         accuracy_validation, loss_validation, loss_training, t_step = model.fit(train, val)
@@ -63,24 +68,29 @@ def train_one_epoch(lr, noise_level, iteration):
         accuracy_validation, loss_validation, loss_training, t_step = model.fit(train, val,
                                                                                 session=model._get_session())
 
-    np.savez_compressed("../metrics/adaptive1-1-metrics-{0}-{1}.npz".format(noise_level, iteration),
+    np.savez_compressed("../metrics/v2-biasless-1-8-1-{0}-{1}.npz".format(noise_level, iteration),
                         lval=loss_validation,
                         ltrain=loss_training, t=t_step)
 
-    if min_or_max == "min":
-        return np.min(loss_validation)
-    else:
-        return np.max(loss_validation)
+    print("-----------------END OF EPOCH-----------------")
+    print("NOISE LEVEL: {0}, ITERATION: {1}, LR: {2}".format(noise_level, iteration, lr))
+    print("VALIDATION LOSS (used for curriculum strategy): ", loss_validation)
+    print("----------------------------------")
+
+    return np.mean(loss_validation)
 
 
-def learning_rate(n, initial_rate=1e-4, decay_factor=0.8):
+def learning_rate(n, initial_rate=ilr, decay_factor=decay_noise):
     return initial_rate * (decay_factor ** n)
 
 
 curr_dur = 0
-for i in range(6):
+for i in range(start_level, noise_levels + 1):
     while curr_dur < duration:
-        it = 0
+        if i == start_level:
+            it = start_it
+        else:
+            it = 0
         curr_dur = 0
         loss = train_one_epoch(learning_rate(i), i, it)
         if loss < threshold:
