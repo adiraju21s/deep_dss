@@ -82,7 +82,8 @@ def train_one_epoch(lr, noise_level, iteration):
     return np.mean(loss_validation)
 
 
-def learning_rate(n, iteration, initial_rate=ilr, nsteps=epoch_size, decay_factor_noise=decay_noise, decay_factor_train=decay_train):
+def learning_rate(n, iteration, initial_rate=ilr, nsteps=epoch_size, decay_factor_noise=decay_noise,
+                  decay_factor_train=decay_train):
     return initial_rate * (decay_factor_noise ** n) * (decay_factor_train ** (iteration * nsteps))
 
 
@@ -98,5 +99,3 @@ for i in range(start_level, noise_levels + 1):
         if loss < threshold:
             curr_dur = curr_dur + 1
         it = it + 1
-
-

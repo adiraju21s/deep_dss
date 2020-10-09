@@ -29,7 +29,7 @@ decay_noise = float(sys.argv[5])
 decay_train = float(sys.argv[6])
 duration = 1
 threshold = 0.04
-epoch_size = 48 # Number of batches per epoch
+epoch_size = 48  # Number of batches per epoch
 
 
 # nlevels includes the noiseless level!
@@ -82,7 +82,8 @@ def train_one_epoch(lr, noise_level, iteration):
     return np.mean(loss_validation)
 
 
-def learning_rate(n, iteration, initial_rate=ilr, nsteps=epoch_size, decay_factor_noise=decay_noise, decay_factor_train=decay_train):
+def learning_rate(n, iteration, initial_rate=ilr, nsteps=epoch_size, decay_factor_noise=decay_noise,
+                  decay_factor_train=decay_train):
     return initial_rate * (decay_factor_noise ** n) * (decay_factor_train ** (iteration * nsteps))
 
 

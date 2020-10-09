@@ -99,5 +99,3 @@ for i in range(start_level, noise_levels + 1):
         if loss < threshold:
             curr_dur = curr_dur + 1
         it = it + 1
-
-
