@@ -94,7 +94,7 @@ for i in range(start_level, noise_levels + 1):
         it = 0
     while curr_dur < duration:
         curr_dur = 0
-        loss = train_one_epoch(learning_rate(i), i, it)
+        loss = train_one_epoch(learning_rate(i, it), i, it)
         if loss < threshold:
             curr_dur = curr_dur + 1
         it = it + 1
