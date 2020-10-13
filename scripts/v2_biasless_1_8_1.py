@@ -59,7 +59,8 @@ def train_one_epoch(lr, noise_level, iteration):
 
     val = LabeledDataset(val_dict["x"], val_dict["y"])
 
-    model = model_v2_biasless(exp_name="1-8-1", gc_depth=8,
+    model = model_v2_biasless(exp_name="1-8-1-{0}-{1}-{2}-{3}".format(noise_levels, ilr, decay_noise, decay_train),
+                              gc_depth=8,
                               filters=[32] * 4 + [64] * 4, var_k=[5] * 4 + [10] * 4,
                               learning_rate=lr)
 
@@ -69,9 +70,12 @@ def train_one_epoch(lr, noise_level, iteration):
         accuracy_validation, loss_validation, loss_training, t_step = model.fit(train, val,
                                                                                 session=model._get_session())
 
-    np.savez_compressed("../metrics/v2-biasless-1-8-1-{0}-{1}.npz".format(noise_level, iteration),
-                        lval=loss_validation,
-                        ltrain=loss_training, t=t_step)
+    np.savez_compressed(
+        "../metrics/v2-biasless-1-8-1-{0}-{1}-{2}-{3}-{4}-{5}.npz".format(noise_levels, ilr,
+                                                                          decay_noise, decay_train, noise_level,
+                                                                          iteration),
+        lval=loss_validation,
+        ltrain=loss_training, t=t_step)
 
     print("-----------------END OF EPOCH-----------------")
     print("NOISE LEVEL: {0}, ITERATION: {1}, LR: {2}".format(noise_level, iteration, lr))

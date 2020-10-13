@@ -59,10 +59,11 @@ def train_one_epoch(lr, noise_level, iteration):
 
     val = LabeledDataset(val_dict["x"], val_dict["y"])
 
-    model = model_v2_biasless(exp_name="1-fid-leaky-relu", gc_depth=12,
-                              nsides=[1024, 1024, 512, 512, 256, 256, 128, 128, 64, 32, 16, 8, 4],
-                              filters=[32] * 6 + [64] * 6, var_k=[5] * 6 + [10] * 6,
-                              fc_layers=[128], learning_rate=lr, activation_func="leaky_relu")
+    model = model_v2_biasless(
+        exp_name="1-fid-leaky-relu-{0}-{1}-{2}-{3}".format(noise_levels, ilr, decay_noise, decay_train), gc_depth=12,
+        nsides=[1024, 1024, 512, 512, 256, 256, 128, 128, 64, 32, 16, 8, 4],
+        filters=[32] * 6 + [64] * 6, var_k=[5] * 6 + [10] * 6,
+        fc_layers=[128], learning_rate=lr, activation_func="leaky_relu")
 
     if noise_level == 0 and iteration == 0:
         accuracy_validation, loss_validation, loss_training, t_step = model.fit(train, val)
@@ -70,9 +71,13 @@ def train_one_epoch(lr, noise_level, iteration):
         accuracy_validation, loss_validation, loss_training, t_step = model.fit(train, val,
                                                                                 session=model._get_session())
 
-    np.savez_compressed("../metrics/v2-biasless-1-fid-leaky-relu-{0}-{1}.npz".format(noise_level, iteration),
-                        lval=loss_validation,
-                        ltrain=loss_training, t=t_step)
+    np.savez_compressed(
+        "../metrics/v2-biasless-1-fid-leaky-relu-{0}-{1}-{2}-{3}-{4}-{5}.npz".format(noise_levels, ilr,
+                                                                                     decay_noise, decay_train,
+                                                                                     noise_level,
+                                                                                     iteration),
+        lval=loss_validation,
+        ltrain=loss_training, t=t_step)
 
     print("-----------------END OF EPOCH-----------------")
     print("NOISE LEVEL: {0}, ITERATION: {1}, LR: {2}".format(noise_level, iteration, lr))
