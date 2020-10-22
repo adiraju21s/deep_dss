@@ -65,7 +65,7 @@ def path_to_cl(sigma8, name="f1z1f1z1", path_to_input=PATH_TO_INPUT):
     return path_to_input + "dss-20-0.28-{0}-1.54/dss-20-0.28-{0}-1.54Cl-{1}.dat".format(round(sigma8, 5), name)
 
 
-def load_cl_from_path(path, lmax=10000):
+def load_cl_from_path(path, lmax=9999):
     """
     Generate pandas dataframe for a given input C(l) file
     :param path: path to C(l) file
@@ -78,7 +78,7 @@ def load_cl_from_path(path, lmax=10000):
     return data
 
 
-def load_cl_from_val(sigma8, lmax=10000, name="f1z1f1z1", path_to_input=PATH_TO_INPUT):
+def load_cl_from_val(sigma8, lmax=9999, name="f1z1f1z1", path_to_input=PATH_TO_INPUT):
     """
     Wrapper function to return pandas data frame for a specified C(l)
     :param sigma8: Value of $\\sigma_8$ used to generate the C(l)s
