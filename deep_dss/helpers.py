@@ -41,8 +41,8 @@ def set_paths():
     Sets directory paths based on the machine being used
     :return: PATH_TO_INPUT, PATH_TO_OUTPUT, PATH_TO_CHECKPOINTS and PATH_TO_VAL
     """
-    path_to_input = "../data/flaskv2/input/"
-    path_to_output = "../data/flaskv2/output/"
+    path_to_input = "../data/flask101/input/"
+    path_to_output = "../data/flask101/output/"
     path_to_checkpoints = ""
     path_to_val = "../validation_101.npz"
 
@@ -228,7 +228,7 @@ def path_to_map(sigma8, name="map-f1z1.fits.gz", path_to_output=PATH_TO_OUTPUT):
     :param path_to_output: Relative path to the FLASK output directory
     :return: String with path
     """
-    return path_to_output + "dss-{0}/dss-{0}-{1}".format(round(sigma8, 5), name)
+    return path_to_output + "dss-20-0.28-{0}-1.54/{1}".format(round(sigma8, 5), name)
 
 
 def load_map_by_path(path, field=0, nest=True):
