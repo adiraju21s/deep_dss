@@ -62,7 +62,7 @@ def path_to_cl(sigma8, name="f1z1f1z1", path_to_input=PATH_TO_INPUT):
     :param path_to_input: Path to flask101 input directory, ending in / (default assumes data folder in repo)
     :return: relative path string to the appropriate C(l) file
     """
-    return path_to_input + "dss-{0}/dss-{0}-Cl-{1}.dat".format(round(sigma8, 5), name)
+    return path_to_input + "dss-20-0.28-{0}-1.54/dss-20-0.28-{0}-1.54Cl-{1}.dat".format(round(sigma8, 5), name)
 
 
 def load_cl_from_path(path, lmax=10000):
