@@ -234,16 +234,15 @@ def path_to_map(sigma8, name="map-f1z1.fits.gz", path_to_output=PATH_TO_OUTPUT, 
     return path_to_output + "dss-{0}/dss-{0}-{1}".format(round(sigma8, 5), name)
 
 
-def load_map_by_path(path, field=0, nest=True, gaussian=False):
+def load_map_by_path(path, field=0, nest=True):
     """
     Returns HEALPIX map located at a given path
-    :param gaussian: If True, returns Gaussian map. Returns log-normal if False.
     :param path: relative path to the map
     :param field: field of the map (for lensing maps with multiple fields)
     :param nest: True for NEST pixellization, False for RING
     :return: Numpy array with map
     """
-    return hp.read_map(path, field=field, nest=nest, gaussian=gaussian)
+    return hp.read_map(path, field=field, nest=nest)
 
 
 def load_map_by_val(sigma8, name="map-f1z1.fits.gz", path_to_output=PATH_TO_OUTPUT, field=0, nest=True, gaussian=False):
@@ -257,8 +256,8 @@ def load_map_by_val(sigma8, name="map-f1z1.fits.gz", path_to_output=PATH_TO_OUTP
     :param nest: True for NEST pixelization, False for RING
     :return: Numpy array with map
     """
-    return load_map_by_path(path_to_map(sigma8, name=name, path_to_output=path_to_output), field=field, nest=nest,
-                            gaussian=gaussian)
+    return load_map_by_path(path_to_map(sigma8, name=name, path_to_output=path_to_output, gaussian=gaussian),
+                            field=field, nest=nest)
 
 
 def load_shear_maps_by_val(sigma8, coadd=True, corr=None, path_to_output=PATH_TO_OUTPUT, nest=True, gaussian=False):
