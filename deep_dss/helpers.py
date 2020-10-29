@@ -609,13 +609,13 @@ def split_count_maps_by_val(sigma8, name="map-f1z1.fits.gz", path_to_output=PATH
                 p[i] = accelerated_noiseless_counts(p[i], npix=npix, pixarea=pixarea, density=density,
                                                     density_0=density_0,
                                                     multiplier=multiplier, bias=bias, rand_bias=rand_bias,
-                                                    mixed_bias=mixed_bias, prior_low=prior_low,
+                                                    prior_low=prior_low,
                                                     prior_high=prior_high, normalize=normalize)
             else:
                 p[i] = accelerated_poissonian_shot_noise(p[i], npix=npix, pixarea=pixarea, density=density,
                                                          density_0=density_0,
                                                          multiplier=multiplier, bias=bias, rand_bias=rand_bias,
-                                                         mixed_bias=mixed_bias, prior_low=prior_low,
+                                                         prior_low=prior_low,
                                                          prior_high=prior_high, normalize=normalize)
         return p
     return split_map(count_map_by_val(sigma8, name=name, path_to_output=path_to_output, field=field, nest=nest,
