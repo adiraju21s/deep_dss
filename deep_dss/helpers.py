@@ -336,11 +336,11 @@ def accelerated_noiseless_counts(m, npix=NPIX, pixarea=PIXEL_AREA,
         b = np.random.uniform(prior_low, prior_high)
     else:
         b = bias
-    for i in range(npix):
+    for i in range(x.size):
         if normalize:
-            x[i] = multiplier * (density_0 / density) * (density * pixarea * (1 + m[i]))
+            x[i] = multiplier * (density_0 / density) * (density * pixarea * (1 + max(m[i], -1)))
         else:
-            x[i] = multiplier * (density_0 / density) * (density * pixarea * (1 + b * m[i]))
+            x[i] = multiplier * (density_0 / density) * (density * pixarea * (1 + max(b * m[i], -1)))
     return x
 
 
@@ -401,11 +401,11 @@ def accelerated_poissonian_shot_noise(m, npix=NPIX, pixarea=PIXEL_AREA,
         b = np.random.uniform(prior_low, prior_high)
     else:
         b = bias
-    for i in range(npix):
+    for i in range(x.size):
         if normalize:
-            x[i] = multiplier * (density_0 / density) * np.random.poisson(density * pixarea * (1 + m[i]))
+            x[i] = multiplier * (density_0 / density) * np.random.poisson(density * pixarea * (1 + max(m[i], -1)))
         else:
-            x[i] = multiplier * (density_0 / density) * np.random.poisson(density * pixarea * (1 + b * m[i]))
+            x[i] = multiplier * (density_0 / density) * np.random.poisson(density * pixarea * (1 + max(b * m[i], -1)))
     return x
 
 
@@ -603,7 +603,7 @@ def split_count_maps_by_val(sigma8, name="map-f1z1.fits.gz", path_to_output=PATH
     """
     if mixed_bias:
         p = split_map(load_map_by_val(sigma8, name=name, path_to_output=path_to_output, field=field, nest=nest,
-                                      gaussian=gaussian))
+                                      gaussian=gaussian), order=order, nest=nest)
         for i in range(12 * order ** 2):
             if noiseless is True:
                 p[i] = accelerated_noiseless_counts(p[i], npix=npix, pixarea=pixarea, density=density,
