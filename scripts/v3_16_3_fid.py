@@ -77,7 +77,7 @@ def train_one_epoch(lr, noise_level, iteration):
 
     val = LabeledDataset(val_dict["x"], val_dict["y"])
 
-    model = model_v3(exp_name="{0}-{1}".format(name, config), gc_depth=16,
+    model = model_v3(exp_name="{0}-{1}".format(name, config), gc_depth=16, input_channels=channels,
                      nsides=[1024, 1024, 512, 512, 256, 256, 128, 128, 64, 64, 32, 32, 16, 16, 8, 8, 4],
                      filters=[32] * 8 + [64] * 8, var_k=[5] * 8 + [10] * 8,
                      fc_layers=[128, 128], learning_rate=lr)

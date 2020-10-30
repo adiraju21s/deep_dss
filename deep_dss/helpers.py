@@ -315,7 +315,7 @@ def load_convergence_map_by_val(sigma8, coadd=True, corr=None, path_to_output=PA
 def accelerated_noiseless_counts(m, npix=NPIX, pixarea=PIXEL_AREA,
                                  density=DENSITY_M, density_0=DENSITY_M, multiplier=1.0, bias=BIAS, rand_bias=False,
                                  prior_low=0.8, prior_high=3.0,
-                                 normalize=True):
+                                 normalize=False):
     """
     Returns new version of input map without any Poissonian shot noise applied.
     :param prior_high: Upper limit of flat prior for linear bias. Used only if rand_bias is True.
@@ -380,7 +380,7 @@ def accelerated_poissonian_shot_noise(m, npix=NPIX, pixarea=PIXEL_AREA,
                                       density=DENSITY_M, density_0=DENSITY_M, multiplier=1.0, bias=BIAS,
                                       rand_bias=False,
                                       prior_low=0.8, prior_high=3.0,
-                                      normalize=True):
+                                      normalize=False):
     """
     Returns new version of input map with a specified level of Poissonian shot noise applied.
     :param prior_high: Upper limit of flat prior for linear bias. Used only if rand_bias is True.
@@ -457,7 +457,7 @@ def accelerated_gaussian_convergence_noise(k, npix=NPIX, pixarea=PIXEL_AREA,
 
 def count_map_by_val(sigma8, name="map-f1z1.fits.gz", path_to_output=PATH_TO_OUTPUT, field=0, nest=True,
                      npix=NPIX, pixarea=PIXEL_AREA, density=DENSITY_M, density_0=DENSITY_M, multiplier=1.0,
-                     bias=BIAS, rand_bias=False, prior_low=0.8, prior_high=3.0, normalize=True, noiseless=False,
+                     bias=BIAS, rand_bias=False, prior_low=0.8, prior_high=3.0, normalize=False, noiseless=False,
                      gaussian=False):
     """
     Loads galaxy density contrast map for a given $\\sigma_8$ and applies Poissonian shot noise
@@ -575,7 +575,7 @@ def split_count_maps_by_val(sigma8, name="map-f1z1.fits.gz", path_to_output=PATH
                             nest=True, npix=NPIX, pixarea=PIXEL_AREA, density=DENSITY_M, density_0=DENSITY_M,
                             multiplier=1.0, gaussian=False, rand_bias=False, mixed_bias=False, prior_low=0.8,
                             prior_high=3.0,
-                            bias=BIAS, normalize=True, order=ORDER, noiseless=False):
+                            bias=BIAS, normalize=False, order=ORDER, noiseless=False):
     """
     Generates partial-sky maps with applied Poissonian shot noise for a given $\\sigma_8$
     :param mixed_bias: If True, applies separate random linear bias to each partial-sky map.
@@ -731,7 +731,7 @@ def split_lensing_maps_by_val(sigma8, config="g", coadd=True, corr=None, path_to
 def split_count_maps_by_vals(sigma8s, name="map-f1z1.fits.gz", path_to_output=PATH_TO_OUTPUT, field=0,
                              nest=True, npix=NPIX, pixarea=PIXEL_AREA, density=DENSITY_M, density_0=DENSITY_M,
                              multiplier=1.0, gaussian=False, rand_bias=False, mixed_bias=False, prior_low=0.8,
-                             prior_high=3.0, bias=BIAS, normalize=True, noiseless=False, order=ORDER, scramble=False,
+                             prior_high=3.0, bias=BIAS, normalize=False, noiseless=False, order=ORDER, scramble=False,
                              ground_truths=True, reshape_x=False, reshape_y=True, deepsphere_dataset=False):
     """
     Generates stacked array of partial-sky Poisson-sampled maps for a list of $\\sigma_8$ values
@@ -871,7 +871,7 @@ def split_count_and_lensing_maps_by_vals(sigma8s, config="g", name="map-f1z1.fit
                                          nest=True, npix=NPIX, pixarea=PIXEL_AREA, density_m=DENSITY_M,
                                          density_m_0=DENSITY_M, multiplier_m=1.0, gaussian=False, rand_bias=False,
                                          mixed_bias=False, prior_low=0.8, prior_high=3.0,
-                                         bias=BIAS, normalize=True, noiseless_m=False, coadd=True, corr=None,
+                                         bias=BIAS, normalize=False, noiseless_m=False, coadd=True, corr=None,
                                          density_kg=DENSITY_KG, density_kg_0=DENSITY_KG, multiplier_kg=1.0,
                                          ellip_sigma=ELLIP_SIGMA, noiseless_kg=False, order=ORDER, scramble=False,
                                          ground_truths=True, reshape_x=False, reshape_y=True, deepsphere_dataset=False):
@@ -974,7 +974,7 @@ def split_count_maps_by_dataset(dataset, name="map-f1z1.fits.gz", path_to_output
                                 nest=True, npix=NPIX, pixarea=PIXEL_AREA, density=DENSITY_M, density_0=DENSITY_M,
                                 multiplier=1.0, gaussian=False, rand_bias=False,
                                 mixed_bias=False, prior_low=0.8, prior_high=3.0,
-                                bias=BIAS, normalize=True, noiseless=False, order=ORDER, scramble=False,
+                                bias=BIAS, normalize=False, noiseless=False, order=ORDER, scramble=False,
                                 ground_truths=True, reshape_x=False, reshape_y=True, deepsphere_dataset=False):
     """
     Generates stacked array of partial-sky Poisson-sampled maps for a given data set
@@ -1062,7 +1062,7 @@ def split_count_and_lensing_maps_by_dataset(dataset, config="g", name="map-f1z1.
                                             density_m_0=DENSITY_M,
                                             multiplier_m=1.0, gaussian=False, rand_bias=False,
                                             mixed_bias=False, prior_low=0.8, prior_high=3.0,
-                                            bias=BIAS, normalize=True, noiseless_m=False, coadd=True, corr=None,
+                                            bias=BIAS, normalize=False, noiseless_m=False, coadd=True, corr=None,
                                             density_kg=DENSITY_KG, density_kg_0=DENSITY_KG, multiplier_kg=1.0,
                                             ellip_sigma=ELLIP_SIGMA, noiseless_kg=False, order=ORDER, scramble=False,
                                             ground_truths=True, reshape_x=False, reshape_y=True,
@@ -1127,7 +1127,7 @@ def split_count_maps_by_datasets(val=False, name="map-f1z1.fits.gz", path_to_out
                                  nest=True, npix=NPIX, pixarea=PIXEL_AREA, density=DENSITY_M, density_0=DENSITY_M,
                                  multiplier=1.0,
                                  bias=BIAS, gaussian=False, rand_bias=False,
-                                 mixed_bias=False, prior_low=0.8, prior_high=3.0, normalize=True, noiseless=False,
+                                 mixed_bias=False, prior_low=0.8, prior_high=3.0, normalize=False, noiseless=False,
                                  order=ORDER, scramble=False,
                                  ground_truths=True, reshape_x=False, reshape_y=True, deepsphere_dataset=False):
     """
@@ -1228,7 +1228,7 @@ def split_count_and_lensing_maps_by_datasets(val=False, config="g", name="map-f1
                                              density_m_0=DENSITY_M,
                                              multiplier_m=1.0, gaussian=False, rand_bias=False,
                                              mixed_bias=False, prior_low=0.8, prior_high=3.0,
-                                             bias=BIAS, normalize=True, noiseless_m=False, coadd=True, corr=None,
+                                             bias=BIAS, normalize=False, noiseless_m=False, coadd=True, corr=None,
                                              density_kg=DENSITY_KG, density_kg_0=DENSITY_KG, multiplier_kg=1.0,
                                              ellip_sigma=ELLIP_SIGMA, noiseless_kg=False, order=ORDER, scramble=False,
                                              ground_truths=True, reshape_x=False, reshape_y=True,
