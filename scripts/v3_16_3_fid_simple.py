@@ -21,7 +21,7 @@ name = sys.argv[1]
 config = sys.argv[2]
 channels = total_channels(config)
 order = 2
-lr = float(sys.argv[5])
+lr = float(sys.argv[3])
 
 train_dict = split_count_and_lensing_maps_by_dataset("TRAINLITE", config=config, order=order,
                                                      noiseless_m=True, noiseless_kg=True,
