@@ -6,7 +6,8 @@ from deep_dss.helpers import *
 # Run on GPU.
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
-config = "g"
+config = "c"
+channels = 1
 noiseless_m = False
 noiseless_kg = False
 rand_bias = False
@@ -41,7 +42,7 @@ def generate_reshaped_data(dataset):
     data = split_count_and_lensing_maps_by_dataset(dataset, config=config, noiseless_m=noiseless_m,
                                                    noiseless_kg=noiseless_kg, rand_bias=rand_bias,
                                                    mixed_bias=mixed_bias)
-    data["x"] = np.reshape(data["x"], (12 * (order ** 2) * num_cosmos, (nside // order) ** 2, 1))
+    data["x"] = np.reshape(data["x"], (12 * (order ** 2) * num_cosmos, (nside // order) ** 2, channels))
     data["y"] = np.reshape(data["y"], (12 * (order ** 2) * num_cosmos, 1, 1))
     return data
 
