@@ -54,6 +54,8 @@ data/
 checkpoints/
 summaries/
 metrics/
+log/
+figures/
 
 validation_101.npz
 
