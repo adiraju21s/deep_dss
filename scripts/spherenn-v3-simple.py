@@ -1,4 +1,5 @@
 import os
+import sys
 import tensorflow as tf
 import tensorflow.keras as keras
 from deep_dss.helpers import *
@@ -6,20 +7,63 @@ from deep_dss.helpers import *
 # Run on GPU.
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
-config = "c"
-channels = 1
-noiseless_m = False
-noiseless_kg = False
-rand_bias = False
-mixed_bias = False
+
+def total_channels(c):
+    if c[0] == "c":
+        return 1 + lensing_channels(c[1:])
+    return lensing_channels(c)
+
+
+def get_config_string(configuration):
+    if configuration == "c":
+        return "count"
+    if configuration == "k":
+        return "kappa"
+    if configuration == "g":
+        return "gamma"
+    if configuration == "ck":
+        return "count-kappa"
+    if configuration == "cg":
+        return "count-gamma"
+    if configuration == "kg":
+        return "kappa-gamma"
+    return "count-kappa-gamma"
+
+
+def generate_exp_name(c, noiseless, free_bias, bout):
+    config_string = get_config_string(c)
+    if noiseless:
+        noise_string = "noisy"
+    else:
+        noise_string = "noiseless"
+    if free_bias:
+        bias_string = "mixed"
+    else:
+        bias_string = "fixed"
+    if bout:
+        return "spherenn-v3-simple-bias-{0}-{1}-{2}-{3}".format(noise_string, bias_string, config_string)
+    return "spherenn-v3-simple-{0}-{1}-{2}-{3}".format(noise_string, bias_string, config_string)
+
+
+config = sys.argv[1]  # "c"
+channels = total_channels(config)
+noiseless_m = sys.argv[2] == "NOISELESS"
+noiseless_kg = sys.argv[2] == "NOISELESS"
+rand_bias = sys.argv[3] == "FREE"
+mixed_bias = sys.argv[3] == "FREE"
+bias_output = sys.argv[4] == "BIAS"
 
 order = 2
 nside = 1024
+if bias_output:
+    num_out = 2
+else:
+    num_out = 1
 
 val_set = "TEST"
 
-exp_name = "spherenn-v3-simple-noisy-fixed-gamma"
-num_id = 1
+exp_name = generate_exp_name(config, noiseless_m, rand_bias, bias_output)  # "spherenn-v3-simple-noisy-fixed-gamma"
+num_id = sys.argv[5]  # 1
 checkpoint_path = "../checkpoints/spherenn/{0}/{0}-{1}".format(exp_name, num_id)
 checkpoint_dir = "../checkpoints/spherenn/{0}".format(exp_name)
 log_dir = "../log/{0}".format(exp_name)
@@ -49,7 +93,7 @@ def generate_reshaped_data(dataset):
 
 def build_model():
     return keras.Sequential([
-        keras.Input(shape=(262144, 1)),
+        keras.Input(shape=(262144, channels)),
         keras.layers.Conv1D(64, 4, strides=4, activation='relu'),
         keras.layers.Conv1D(128, 4, strides=4, activation='relu'),
         keras.layers.Conv1D(256, 4, strides=4, activation='relu'),
@@ -58,7 +102,7 @@ def build_model():
         keras.layers.Conv1D(256, 4, strides=4, activation='relu'),
         keras.layers.Conv1D(256, 4, strides=4, activation='relu'),
         keras.layers.Conv1D(256, 4, strides=4, activation='relu'),
-        keras.layers.Conv1D(1, 4, strides=4, activation='relu'),
+        keras.layers.Conv1D(num_out, 4, strides=4, activation='relu'),
     ])
 
 
@@ -145,6 +189,6 @@ def print_losses(full_results):
 
 train_model()
 
-results = full_predictions_and_truths()
+# results = full_predictions_and_truths()
 
-print_losses(results)
+# print_losses(results)
