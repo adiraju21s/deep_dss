@@ -30,19 +30,23 @@ def get_config_string(configuration):
     return "count-kappa-gamma"
 
 
-def generate_exp_name(c, noiseless, free_bias, bout):
+def generate_exp_name(c, noiseless, free_bias, bout, g):
     config_string = get_config_string(c)
     if noiseless:
-        noise_string = "noisy"
-    else:
         noise_string = "noiseless"
+    else:
+        noise_string = "noisy"
     if free_bias:
         bias_string = "mixed"
     else:
         bias_string = "fixed"
     if bout:
-        return "spherenn-v3-simple-bias-{0}-{1}-{2}-{3}".format(noise_string, bias_string, config_string)
-    return "spherenn-v3-simple-{0}-{1}-{2}-{3}".format(noise_string, bias_string, config_string)
+        if g:
+            return "spherenn-v3-simple-bias-{0}-{1}-{2}-gauss".format(noise_string, bias_string, config_string)
+        return "spherenn-v3-simple-bias-{0}-{1}-{2}".format(noise_string, bias_string, config_string)
+    if g:
+        return "spherenn-v3-simple-{0}-{1}-{2}-gauss".format(noise_string, bias_string, config_string)
+    return "spherenn-v3-simple-{0}-{1}-{2}".format(noise_string, bias_string, config_string)
 
 
 config = sys.argv[1]  # "c"
@@ -52,6 +56,7 @@ noiseless_kg = sys.argv[2] == "NOISELESS"
 rand_bias = sys.argv[3] == "FREE"
 mixed_bias = sys.argv[3] == "FREE"
 bias_output = sys.argv[4] == "BIAS"
+gaussian = sys.argv[5] == "GAUSS"
 
 order = 2
 nside = 1024
@@ -62,8 +67,9 @@ else:
 
 val_set = "TEST"
 
-exp_name = generate_exp_name(config, noiseless_m, rand_bias, bias_output)  # "spherenn-v3-simple-noisy-fixed-gamma"
-num_id = sys.argv[5]  # 1
+exp_name = generate_exp_name(config, noiseless_m, rand_bias, bias_output,
+                             gaussian)  # "spherenn-v3-simple-noisy-fixed-gamma"
+num_id = sys.argv[6]  # 1
 checkpoint_path = "../checkpoints/spherenn/{0}/{0}-{1}".format(exp_name, num_id)
 checkpoint_dir = "../checkpoints/spherenn/{0}".format(exp_name)
 log_dir = "../log/{0}".format(exp_name)
@@ -85,7 +91,7 @@ def generate_reshaped_data(dataset):
     num_cosmos = num_cosmologies(dataset)
     data = split_count_and_lensing_maps_by_dataset(dataset, config=config, noiseless_m=noiseless_m,
                                                    noiseless_kg=noiseless_kg, rand_bias=rand_bias,
-                                                   mixed_bias=mixed_bias)
+                                                   mixed_bias=mixed_bias, gaussian=gaussian)
     data["x"] = np.reshape(data["x"], (12 * (order ** 2) * num_cosmos, (nside // order) ** 2, channels))
     data["y"] = np.reshape(data["y"], (12 * (order ** 2) * num_cosmos, 1, 1))
     return data
