@@ -24,6 +24,7 @@ order = 2
 start_level = int(sys.argv[3])
 start_it = int(sys.argv[4])
 ilr = float(sys.argv[5])
+gaussian = sys.argv[6]
 decay_noise = 0.8
 decay_train = 0.999
 duration = 1
@@ -62,7 +63,7 @@ def train_one_epoch(lr, noise_level, iteration):
                                                          density_kg=density_kg_by_iter(noise_level,
                                                                                        nlevels=noise_levels),
                                                          noiseless_kg=noiseless_kg_by_iter(noise_level),
-                                                         scramble=True)
+                                                         scramble=True, gaussian=(gaussian == "GAUSS"))
 
     train = LabeledDataset(train_dict["x"], train_dict["y"])
 
@@ -73,11 +74,11 @@ def train_one_epoch(lr, noise_level, iteration):
                                                        density_kg=density_kg_by_iter(noise_level,
                                                                                      nlevels=noise_levels),
                                                        noiseless_kg=noiseless_kg_by_iter(noise_level),
-                                                       scramble=True)
+                                                       scramble=True, gaussian=(gaussian == "GAUSS"))
 
     val = LabeledDataset(val_dict["x"], val_dict["y"])
 
-    model = model_v3(exp_name="{0}-{1}".format(name, config), gc_depth=16, input_channels=channels,
+    model = model_v3(exp_name="{0}-{1}-{2}".format(name, config, gaussian), gc_depth=16, input_channels=channels,
                      nsides=[1024, 1024, 512, 512, 256, 256, 128, 128, 64, 64, 32, 32, 16, 16, 8, 8, 4],
                      filters=[32] * 8 + [64] * 8, var_k=[5] * 8 + [10] * 8,
                      fc_layers=[128, 128], learning_rate=lr)
@@ -89,7 +90,7 @@ def train_one_epoch(lr, noise_level, iteration):
                                                                                 session=model._get_session())
 
     np.savez_compressed(
-        "../metrics/v3-{0}-{1}-{2}-{3}.npz".format(name, config, noise_level, iteration),
+        "../metrics/v3-{0}-{1}-{2}-{3}-{4}.npz".format(name, config, gaussian, noise_level, iteration),
         lval=loss_validation,
         ltrain=loss_training, t=t_step)
 
