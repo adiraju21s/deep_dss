@@ -37,7 +37,7 @@ def train_on_dataset(dataset, reload=False):
 
     val = LabeledDataset(val_dict["x"], val_dict["y"])
 
-    model = model_v3(exp_name="12-2-leaky-simple-{0}-{1}".format(name, config),
+    model = model_v3(exp_name="simple-{0}-{1}".format(name, config),
                      gc_depth=12, input_channels=channels, num_epochs=12,
                      nsides=[1024, 1024, 512, 512, 256, 256, 128, 128, 64, 32, 16, 8, 4],
                      filters=[32] * 6 + [64] * 6, var_k=[5] * 6 + [10] * 6,
@@ -49,7 +49,7 @@ def train_on_dataset(dataset, reload=False):
         accuracy_validation, loss_validation, loss_training, t_step = model.fit(train, val)
 
     np.savez_compressed(
-        "../metrics/v3-12-2-leaky-simple-{0}-{1}-{2}-noiseless.npz".format(name, config, dataset),
+        "../metrics/v3-simple-{0}-{1}-{2}-noiseless.npz".format(name, config, dataset),
         lval=loss_validation,
         ltrain=loss_training, t=t_step)
 
