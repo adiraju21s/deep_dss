@@ -23,26 +23,37 @@ channels = total_channels(config)
 order = 2
 lr = float(sys.argv[3])
 
-train_dict = split_count_and_lensing_maps_by_dataset("TRAINLITE", config=config, order=order,
-                                                     noiseless_m=True, noiseless_kg=True,
-                                                     scramble=True)
 
-train = LabeledDataset(train_dict["x"], train_dict["y"])
+def train_on_dataset(dataset, reload=False):
+    train_dict = split_count_and_lensing_maps_by_dataset(dataset, config=config, order=order,
+                                                         noiseless_m=True, noiseless_kg=True,
+                                                         scramble=True)
 
-val_dict = split_count_and_lensing_maps_by_dataset("TESTLITE", config=config, order=order,
-                                                   noiseless_m=True, noiseless_kg=True,
-                                                   scramble=True)
+    train = LabeledDataset(train_dict["x"], train_dict["y"])
 
-val = LabeledDataset(val_dict["x"], val_dict["y"])
+    val_dict = split_count_and_lensing_maps_by_dataset("TESTLITE", config=config, order=order,
+                                                       noiseless_m=True, noiseless_kg=True,
+                                                       scramble=True)
 
-model = model_v3(exp_name="simple-{0}-{1}".format(name, config), gc_depth=16, input_channels=channels,
-                 nsides=[1024, 1024, 512, 512, 256, 256, 128, 128, 64, 64, 32, 32, 16, 16, 8, 8, 4],
-                 filters=[32] * 8 + [64] * 8, var_k=[5] * 8 + [10] * 8, num_epochs=12,
-                 fc_layers=[128, 128], learning_rate=lr)
+    val = LabeledDataset(val_dict["x"], val_dict["y"])
 
-accuracy_validation, loss_validation, loss_training, t_step = model.fit(train, val)
+    model = model_v3(exp_name="16-3-fid-simple-{0}-{1}".format(name, config), gc_depth=16, input_channels=channels,
+                     nsides=[1024, 1024, 512, 512, 256, 256, 128, 128, 64, 64, 32, 32, 16, 16, 8, 8, 4],
+                     filters=[32] * 8 + [64] * 8, var_k=[5] * 8 + [10] * 8, num_epochs=12,
+                     fc_layers=[128, 128], learning_rate=lr)
+    if reload:
+        accuracy_validation, loss_validation, loss_training, t_step = model.fit(train, val,
+                                                                                session=model._get_session())
+    else:
+        accuracy_validation, loss_validation, loss_training, t_step = model.fit(train, val)
 
-np.savez_compressed(
-    "../metrics/v3-simple-{0}-{1}-noiseless.npz".format(name, config),
-    lval=loss_validation,
-    ltrain=loss_training, t=t_step)
+    np.savez_compressed(
+        "../metrics/v3-16-3-fid-simple-{0}-{1}-{2}-noiseless.npz".format(name, config, dataset),
+        lval=loss_validation,
+        ltrain=loss_training, t=t_step)
+
+
+train_on_dataset("Q1")
+train_on_dataset("Q2", reload=True)
+train_on_dataset("Q3", reload=True)
+train_on_dataset("Q4", reload=True)
