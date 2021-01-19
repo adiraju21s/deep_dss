@@ -43,13 +43,14 @@ def set_paths():
     """
     path_to_input = "../data/flaskv3/input/"
     path_to_output = "../data/flaskv3/output/"
+    path_to_cov_output = "../data/flaskv4/output/"
     path_to_checkpoints = ""
     path_to_val = "../validation_101.npz"
 
-    return path_to_input, path_to_output, path_to_checkpoints, path_to_val
+    return path_to_input, path_to_output, path_to_cov_output, path_to_checkpoints, path_to_val
 
 
-(PATH_TO_INPUT, PATH_TO_OUTPUT, PATH_TO_CHECKPOINTS, PATH_TO_VAL) = set_paths()
+(PATH_TO_INPUT, PATH_TO_OUTPUT, PATH_TO_COV_OUTPUT, PATH_TO_CHECKPOINTS, PATH_TO_VAL) = set_paths()
 
 
 # C(l) helper functions
@@ -220,17 +221,20 @@ def dataset_names(val=False):
 
 # Map loading functions
 
-def path_to_map(sigma8, name="map-f1z1.fits.gz", path_to_output=PATH_TO_OUTPUT, gaussian=False):
+def path_to_map(sigma8, name="map-f1z1.fits.gz", path_to_output=PATH_TO_OUTPUT, gaussian=False, covariance=False):
     """
     Return relative path to Healpix map given $\\sigma_8$
+    :param covariance: If True, returns maps from covariance set of maps.
     :param gaussian: If True, returns Gaussian map. Returns log-normal if False.
-    :param sigma8: Value of $\\sigma_8$$ from which the map was generated
+    :param sigma8: Value of $\\sigma_8$$ from which the map was generated. Refers to ID if covariance is True.
     :param name: Name of the map file
     :param path_to_output: Relative path to the FLASK output directory
     :return: String with path
     """
     if gaussian is True:
         return path_to_output + "dss-gauss-{0}/dss-gauss-{0}-{1}".format(round(sigma8, 5), name)
+    if covariance is True:
+        return PATH_TO_COV_OUTPUT + "dss-{}".format(sigma8)
     return path_to_output + "dss-{0}/dss-{0}-{1}".format(round(sigma8, 5), name)
 
 
