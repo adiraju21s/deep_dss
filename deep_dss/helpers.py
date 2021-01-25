@@ -1080,7 +1080,7 @@ def split_count_and_lensing_maps_by_vals(sigma8s, config="g", name="map-f1z1.fit
             for i in range(len(sigma8s)):
                 y[i * num_partials:(i + 1) * num_partials] = sigma8s[i]
         else:
-            y = np.zeros(len(sigma8s) * num_partials, 2)
+            y = np.zeros((len(sigma8s) * num_partials, 2))
             for i in range(len(sigma8s)):
                 y[i * num_partials:(i + 1) * num_partials, 0] = sigma8s[i]
                 y[i * num_partials:(i + 1) * num_partials, 1] = np.copy(biases)
