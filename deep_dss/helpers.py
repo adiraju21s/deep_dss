@@ -188,7 +188,7 @@ def cov_full_cosmologies_list():
     Return the list of all 200 IDs used for covariance.
     :return: A numpy array of 200 ID values
     """
-    return np.linspace(201, 400, num=200)
+    return np.linspace(201, 400, num=200).astype('int')
 
 
 def cov_q1_cosmologies_list():
@@ -196,7 +196,7 @@ def cov_q1_cosmologies_list():
     Return the list of the first 40 IDs used for covariance.
     :return: A numpy array of 40 ID values
     """
-    return np.linspace(201, 240, num=40)
+    return np.linspace(201, 240, num=40).astype('int')
 
 
 def cov_q2_cosmologies_list():
@@ -204,7 +204,7 @@ def cov_q2_cosmologies_list():
     Return the list of the second 40 IDs used for covariance.
     :return: A numpy array of 40 ID values
     """
-    return np.linspace(241, 280, num=40)
+    return np.linspace(241, 280, num=40).astype('int')
 
 
 def cov_q3_cosmologies_list():
@@ -212,7 +212,7 @@ def cov_q3_cosmologies_list():
     Return the list of the third 40 IDs used for covariance.
     :return: A numpy array of 40 ID values
     """
-    return np.linspace(281, 320, num=40)
+    return np.linspace(281, 320, num=40).astype('int')
 
 
 def cov_q4_cosmologies_list():
@@ -220,7 +220,7 @@ def cov_q4_cosmologies_list():
     Return the list of the fourth 40 IDs used for covariance.
     :return: A numpy array of 40 ID values
     """
-    return np.linspace(321, 360, num=40)
+    return np.linspace(321, 360, num=40).astype('int')
 
 
 def cov_q5_cosmologies_list():
@@ -228,7 +228,7 @@ def cov_q5_cosmologies_list():
     Return the list of the fifth 40 IDs used for covariance.
     :return: A numpy array of 40 ID values
     """
-    return np.linspace(361, 400, num=40)
+    return np.linspace(361, 400, num=40).astype('int')
 
 
 def cosmologies_list(dataset):
