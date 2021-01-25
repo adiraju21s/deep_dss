@@ -183,6 +183,54 @@ def test_cosmologies_list():
                      0.5735, 0.997, 0.878, 0.507, 0.8115])
 
 
+def cov_full_cosmologies_list():
+    """
+    Return the list of all 200 IDs used for covariance.
+    :return: A numpy array of 200 ID values
+    """
+    return np.linspace(201, 400, num=200)
+
+
+def cov_q1_cosmologies_list():
+    """
+    Return the list of the first 40 IDs used for covariance.
+    :return: A numpy array of 40 ID values
+    """
+    return np.linspace(201, 240, num=40)
+
+
+def cov_q2_cosmologies_list():
+    """
+    Return the list of the second 40 IDs used for covariance.
+    :return: A numpy array of 40 ID values
+    """
+    return np.linspace(241, 280, num=40)
+
+
+def cov_q3_cosmologies_list():
+    """
+    Return the list of the third 40 IDs used for covariance.
+    :return: A numpy array of 40 ID values
+    """
+    return np.linspace(281, 320, num=40)
+
+
+def cov_q4_cosmologies_list():
+    """
+    Return the list of the fourth 40 IDs used for covariance.
+    :return: A numpy array of 40 ID values
+    """
+    return np.linspace(321, 360, num=40)
+
+
+def cov_q5_cosmologies_list():
+    """
+    Return the list of the fifth 40 IDs used for covariance.
+    :return: A numpy array of 40 ID values
+    """
+    return np.linspace(361, 400, num=40)
+
+
 def cosmologies_list(dataset):
     """
     Returns list of $\\sigma_8$ values for an input data set
@@ -205,6 +253,18 @@ def cosmologies_list(dataset):
         return lite_train_cosmologies_list()
     if dataset == "TESTLITE":
         return lite_test_cosmologies_list()
+    if dataset == "COVFULL":
+        return cov_full_cosmologies_list()
+    if dataset == "COVQ1":
+        return cov_q1_cosmologies_list()
+    if dataset == "COVQ2":
+        return cov_q2_cosmologies_list()
+    if dataset == "COVQ3":
+        return cov_q3_cosmologies_list()
+    if dataset == "COVQ4":
+        return cov_q4_cosmologies_list()
+    if dataset == "COVQ5":
+        return cov_q5_cosmologies_list()
     print("Invalid data set specification. Please try again")
 
 
