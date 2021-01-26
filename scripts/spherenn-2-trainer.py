@@ -5,6 +5,8 @@ import pickle
 import tensorflow as tf
 import tensorflow.keras as keras
 from deep_dss.helpers import *
+import numpy as np
+import random
 
 # Run on GPU.
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
@@ -80,8 +82,8 @@ def outputs_by_config(conf):
 
 
 config_string = sys.argv[1]
-epochs = sys.argv[2]
-batch_size = sys.argv[3]
+epochs = int(sys.argv[2])
+batch_size = int(sys.argv[3])
 val_set = "TEST"
 
 series, config, noiseless_counts, noiseless_lensing, gaussian_counts, gaussian_lensing, free_bias, run_id = config_string_to_variables(
@@ -97,6 +99,10 @@ subprocess.call(["mkdir", metrics_dir])
 
 channels = channels_by_config(config)
 num_outputs = outputs_by_config(config)
+
+np.random.seed(170 * run_id)
+random.seed(170 * run_id)
+tf.random.set_seed(170 * run_id)
 
 nside = 1024
 order = 2
