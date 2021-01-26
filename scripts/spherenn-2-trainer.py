@@ -13,7 +13,7 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 
 def config_string_to_variables(conf_str):
-    split_conf_str = conf_str.split(separator='-')
+    split_conf_str = conf_str.split('-')
     s = int(split_conf_str[1])
     conf = split_conf_str[2]
     modifier_num = int(split_conf_str[3])
