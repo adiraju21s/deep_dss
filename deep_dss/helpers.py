@@ -382,7 +382,7 @@ def load_convergence_map_by_val(sigma8, coadd=True, corr=None, path_to_output=PA
 @jit(nopython=True)
 def accelerated_noiseless_counts(m, pixarea=PIXEL_AREA,
                                  density=DENSITY_M, density_0=DENSITY_M, multiplier=1.0, bias=BIAS, free_bias=False,
-                                 prior_low=0.8, prior_high=3.0, nside=NSIDE, order=ORDER,
+                                 prior_low=0.94, prior_high=2.86, nside=NSIDE, order=ORDER,
                                  normalize=False):
     """
     Returns new version of input map without any Poissonian shot noise applied.
@@ -460,7 +460,7 @@ def accelerated_noiseless_convergence(k, multiplier=1.0, zscale=False, npix=NPIX
 def accelerated_poissonian_shot_noise(m, pixarea=PIXEL_AREA,
                                       density=DENSITY_M, density_0=DENSITY_M, multiplier=1.0, bias=BIAS,
                                       free_bias=False, nside=NSIDE, order=ORDER,
-                                      prior_low=0.8, prior_high=3.0,
+                                      prior_low=0.94, prior_high=2.86,
                                       normalize=False):
     """
     Returns new version of input map with a specified level of Poissonian shot noise applied.
@@ -552,7 +552,7 @@ def accelerated_gaussian_convergence_noise(k, npix=NPIX, pixarea=PIXEL_AREA,
 
 def count_map_by_val(sigma8, name="map-f1z1.fits.gz", path_to_output=PATH_TO_OUTPUT, field=0, nest=True,
                      pixarea=PIXEL_AREA, density=DENSITY_M, density_0=DENSITY_M, multiplier=1.0,
-                     bias=BIAS, free_bias=False, prior_low=0.8, prior_high=3.0, normalize=False, noiseless=False,
+                     bias=BIAS, free_bias=False, prior_low=0.94, prior_high=2.86, normalize=False, noiseless=False,
                      gaussian=False, covariance=False, nside=NSIDE, order=ORDER):
     """
     Loads galaxy density contrast map for a given $\\sigma_8$ and applies Poissonian shot noise
@@ -674,8 +674,8 @@ def split_map(m, order=ORDER, nest=True):
 
 def split_count_maps_by_val(sigma8, name="map-f1z1.fits.gz", path_to_output=PATH_TO_OUTPUT, field=0,
                             nest=True, pixarea=PIXEL_AREA, density=DENSITY_M, density_0=DENSITY_M,
-                            multiplier=1.0, gaussian=False, free_bias=False, prior_low=0.8,
-                            prior_high=3.0, covariance=False, nside=NSIDE,
+                            multiplier=1.0, gaussian=False, free_bias=False, prior_low=0.94,
+                            prior_high=2.86, covariance=False, nside=NSIDE,
                             bias=BIAS, normalize=False, order=ORDER, noiseless=False):
     """
     Generates partial-sky maps with applied Poissonian shot noise for a given $\\sigma_8$
@@ -826,8 +826,8 @@ def split_lensing_maps_by_val(sigma8, config="g", coadd=True, corr=None, path_to
 
 def split_count_maps_by_vals(sigma8s, name="map-f1z1.fits.gz", path_to_output=PATH_TO_OUTPUT, field=0,
                              nest=True, pixarea=PIXEL_AREA, density=DENSITY_M, density_0=DENSITY_M,
-                             multiplier=1.0, gaussian=False, free_bias=False, prior_low=0.8,
-                             prior_high=3.0, bias=BIAS, normalize=False, noiseless=False, order=ORDER,
+                             multiplier=1.0, gaussian=False, free_bias=False, prior_low=0.94,
+                             prior_high=2.86, bias=BIAS, normalize=False, noiseless=False, order=ORDER,
                              scramble=False, covariance=False, nside=NSIDE,
                              ground_truths=True, reshape_x=False, reshape_y=True, deepsphere_dataset=False):
     """
@@ -981,7 +981,7 @@ def split_count_and_lensing_maps_by_vals(sigma8s, config="g", name="map-f1z1.fit
                                          field=0, covariance=False, zscale=False,
                                          nest=True, npix=NPIX, pixarea=PIXEL_AREA, density_m=DENSITY_M,
                                          density_m_0=DENSITY_M, multiplier_m=1.0, gaussian=False, free_bias=False,
-                                         prior_low=0.8, prior_high=3.0, nside=NSIDE,
+                                         prior_low=0.94, prior_high=2.86, nside=NSIDE,
                                          bias=BIAS, normalize=False, noiseless_m=False, coadd=True, corr=None,
                                          density_kg=DENSITY_KG, density_kg_0=DENSITY_KG, multiplier_kg=1.0,
                                          ellip_sigma=ELLIP_SIGMA, noiseless_kg=False, order=ORDER, scramble=False,
@@ -1052,6 +1052,7 @@ def split_count_and_lensing_maps_by_vals(sigma8s, config="g", name="map-f1z1.fit
                                            noiseless=noiseless_kg, order=order, config=config, gaussian=gaussian)
             x = np.vstack((x, kg))
         else:
+            print("Here?")
             c = split_count_maps_by_val(sigma8, name=name, path_to_output=path_to_output, field=field,
                                         nest=nest, pixarea=pixarea, density=density_m,
                                         density_0=density_m_0, covariance=covariance,
@@ -1099,7 +1100,7 @@ def split_count_and_lensing_maps_by_vals(sigma8s, config="g", name="map-f1z1.fit
 def split_count_maps_by_dataset(dataset, name="map-f1z1.fits.gz", path_to_output=PATH_TO_OUTPUT, field=0,
                                 nest=True, pixarea=PIXEL_AREA, density=DENSITY_M, density_0=DENSITY_M,
                                 multiplier=1.0, gaussian=False, free_bias=False, covariance=False,
-                                prior_low=0.8, prior_high=3.0,
+                                prior_low=0.94, prior_high=2.86,
                                 bias=BIAS, normalize=False, noiseless=False, order=ORDER, scramble=False,
                                 ground_truths=True, reshape_x=False, reshape_y=True, deepsphere_dataset=False):
     """
@@ -1191,7 +1192,7 @@ def split_count_and_lensing_maps_by_dataset(dataset, config="g", name="map-f1z1.
                                             nest=True, npix=NPIX, pixarea=PIXEL_AREA, density_m=DENSITY_M,
                                             density_m_0=DENSITY_M,
                                             multiplier_m=1.0, gaussian=False, free_bias=False,
-                                            prior_low=0.8, prior_high=3.0,
+                                            prior_low=0.94, prior_high=2.86,
                                             bias=BIAS, normalize=False, noiseless_m=False, coadd=True, corr=None,
                                             density_kg=DENSITY_KG, density_kg_0=DENSITY_KG, multiplier_kg=1.0,
                                             ellip_sigma=ELLIP_SIGMA, noiseless_kg=False, order=ORDER,
@@ -1261,7 +1262,7 @@ def split_count_maps_by_datasets(val=False, name="map-f1z1.fits.gz", path_to_out
                                  nest=True, npix=NPIX, pixarea=PIXEL_AREA, density=DENSITY_M, density_0=DENSITY_M,
                                  multiplier=1.0,
                                  bias=BIAS, gaussian=False, free_bias=False,
-                                 prior_low=0.8, prior_high=3.0, normalize=False, noiseless=False,
+                                 prior_low=0.94, prior_high=2.86, normalize=False, noiseless=False,
                                  order=ORDER, scramble=False,
                                  ground_truths=True, reshape_x=False, reshape_y=True, deepsphere_dataset=False):
     """
@@ -1364,7 +1365,7 @@ def split_count_and_lensing_maps_by_datasets(val=False, config="g", name="map-f1
                                              nest=True, npix=NPIX, pixarea=PIXEL_AREA, density_m=DENSITY_M,
                                              density_m_0=DENSITY_M,
                                              multiplier_m=1.0, gaussian=False, free_bias=False,
-                                             prior_low=0.8, prior_high=3.0,
+                                             prior_low=0.94, prior_high=2.86,
                                              bias=BIAS, normalize=False, noiseless_m=False, coadd=True, corr=None,
                                              density_kg=DENSITY_KG, density_kg_0=DENSITY_KG, multiplier_kg=1.0,
                                              ellip_sigma=ELLIP_SIGMA, noiseless_kg=False, order=ORDER,
