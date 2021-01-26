@@ -1,0 +1,3 @@
+## {'coords': 'spherical', 'metric': 'Euclidean', 'sep_units': 'arcmin', 'bin_type': 'Log'}
+#   r_nom       meanr       meanlogr        xi        sigma_xi      weight       npairs   
+  3.6497e+01   3.6480e+01   3.5967e+00   1.3522e-05   1.4160e-06   2.1648e+08   2.1648e+08
