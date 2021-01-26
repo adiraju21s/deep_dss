@@ -121,7 +121,7 @@ def generate_reshaped_data(dataset):
     num_cosmos = num_cosmologies(dataset)
     data = split_count_and_lensing_maps_by_dataset(dataset, config=config, noiseless_m=noiseless_counts,
                                                    noiseless_kg=noiseless_lensing,
-                                                   free_bias=free_bias, gaussian=(gaussian_counts & gaussian_lensing),
+                                                   free_bias=free_bias, gaussian=(gaussian_counts | gaussian_lensing),
                                                    prior_low=prior_low, prior_high=prior_high)
     data["x"] = np.reshape(data["x"], (12 * (order ** 2) * num_cosmos, (nside // order) ** 2, channels))
     data["y"] = np.reshape(data["y"], (12 * (order ** 2) * num_cosmos, 1, num_outputs))
