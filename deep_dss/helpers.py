@@ -134,6 +134,32 @@ def q1_cosmologies_list():
                      1.0005, 0.8535, 0.5, 0.9165, 0.5105])
 
 
+def o1_cosmologies_list():
+    """
+    Return the list of $\\sigma_8$ values used in training Q1
+    :return: A numpy array of 20 $\\sigma_8$ values
+    """
+    return np.array([0.969, 0.654, 1.06, 0.703,
+                     1.1615, 0.759, 0.885, 0.6295,
+                     0.605, 0.7205, 1.1685, 1.179,
+                     0.857, 1.123, 0.843, 0.5245,
+                     0.99, 0.7485, 0.528, 1.1265,
+                     0.8535, 0.9165])
+
+
+def o2_cosmologies_list():
+    """
+    Return the list of $\\sigma_8$ values used in training Q1
+    :return: A numpy array of 20 $\\sigma_8$ values
+    """
+    return np.array([0.7345, 0.6435, 1.1895, 1.109,
+                     1.032, 1.0705, 0.5175, 0.9515,
+                     0.7415, 0.5875, 0.7065, 0.773,
+                     0.577, 1.1195, 1.1965, 0.7975,
+                     1.172, 0.892, 0.955, 1.0845,
+                     1.0005, 0.5, 0.5105])
+
+
 def q2_cosmologies_list():
     """
     Return the list of $\\sigma_8$ values used in training Q2
@@ -145,6 +171,32 @@ def q2_cosmologies_list():
                      1.151, 0.8815, 1.0775, 0.563, 0.6925, 0.7555, 1.1755, 1.1335,
                      0.696, 0.801, 0.864, 0.598, 1.158, 0.8955, 0.5315, 1.0355,
                      0.899, 1.046, 0.542, 1.0215, 1.1825])
+
+
+def o3_cosmologies_list():
+    """
+    Return the list of $\\sigma_8$ values used in training Q2
+    :return: A numpy array of 20 $\\sigma_8$ values
+    """
+    return np.array([1.025, 0.5385, 1.018, 0.927,
+                     1.095, 0.5595, 0.6645, 0.6155,
+                     0.78, 0.633, 1.193, 0.8675,
+                     0.8815, 0.563, 0.7555, 1.1335,
+                     0.801, 0.598, 0.8955, 1.0355,
+                     1.046, 1.0215])
+
+
+def o4_cosmologies_list():
+    """
+    Return the list of $\\sigma_8$ values used in training Q2
+    :return: A numpy array of 20 $\\sigma_8$ values
+    """
+    return np.array([0.5035, 0.6995, 0.6015, 0.829,
+                     0.7905, 0.9655, 1.165, 0.724,
+                     1.039, 0.941, 1.186, 1.0635,
+                     1.151, 1.0775, 0.6925, 1.1755,
+                     0.696, 0.864, 1.158, 0.5315,
+                     0.899, 0.542, 1.1825])
 
 
 def q3_cosmologies_list():
@@ -160,6 +212,32 @@ def q3_cosmologies_list():
                      0.738, 0.71, 0.8325, 0.962, 0.822])
 
 
+def o5_cosmologies_list():
+    """
+    Return the list of $\\sigma_8$ values used in training Q3
+    :return: A numpy array of 20 $\\sigma_8$ values
+    """
+    return np.array([0.689, 0.6365, 0.6785, 1.1055,
+                     0.57, 0.8255, 1.137, 0.9235,
+                     0.661, 0.7765, 0.836, 0.906,
+                     0.8745, 0.675, 0.9095, 0.92,
+                     1.011, 0.6225, 0.6715, 0.983,
+                     0.71, 0.962])
+
+
+def o6_cosmologies_list():
+    """
+    Return the list of $\\sigma_8$ values used in training Q3
+    :return: A numpy array of 20 $\\sigma_8$ values
+    """
+    return np.array([0.8395, 0.8465, 1.0145, 1.004,
+                     1.053, 1.0495, 0.668, 0.5805,
+                     0.619, 0.7695, 0.9375, 0.591,
+                     1.1545, 0.766, 0.8885, 1.102,
+                     0.556, 1.0075, 0.5455, 0.626,
+                     0.738, 0.8325, 0.822])
+
+
 def q4_cosmologies_list():
     """
     Return the list of $\\sigma_8$ values used in training Q4
@@ -171,6 +249,32 @@ def q4_cosmologies_list():
                      0.5945, 0.913, 0.787, 1.0425, 0.7135, 0.808, 1.074, 0.8185,
                      0.6505, 0.9725, 0.976, 0.9025, 0.8045, 0.584, 0.535, 0.717,
                      0.64, 1.1125, 0.745, 0.7625, 0.521])
+
+
+def o7_cosmologies_list():
+    """
+    Return the list of $\\sigma_8$ values used in training Q4
+    :return: A numpy array of 20 $\\sigma_8$ values
+    """
+    return np.array([0.5525, 0.9445, 0.549, 0.815,
+                     0.6575, 1.067, 0.514, 1.0285,
+                     1.1405, 0.948, 0.934, 0.7275,
+                     0.913, 1.0425, 0.808, 0.8185,
+                     0.9725, 0.9025, 0.584, 0.717,
+                     1.1125, 0.7625])
+
+
+def o8_cosmologies_list():
+    """
+    Return the list of $\\sigma_8$ values used in training Q4
+    :return: A numpy array of 20 $\\sigma_8$ values
+    """
+    return np.array([1.1475, 0.85, 0.7835, 0.794,
+                     0.9585, 0.9935, 0.8605, 1.0985,
+                     0.612, 1.081, 0.6085, 0.731,
+                     0.5945, 0.787, 0.7135, 1.074,
+                     0.6505, 0.976, 0.8045, 0.535,
+                     0.64, 0.745, 0.521])
 
 
 def test_cosmologies_list():
@@ -245,6 +349,22 @@ def cosmologies_list(dataset):
         return q3_cosmologies_list()
     if dataset == "Q4":
         return q4_cosmologies_list()
+    if dataset == "O1":
+        return o1_cosmologies_list()
+    if dataset == "O2":
+        return o2_cosmologies_list()
+    if dataset == "O3":
+        return o3_cosmologies_list()
+    if dataset == "O4":
+        return o4_cosmologies_list()
+    if dataset == "O5":
+        return o5_cosmologies_list()
+    if dataset == "O6":
+        return o6_cosmologies_list()
+    if dataset == "O7":
+        return o7_cosmologies_list()
+    if dataset == "O8":
+        return o8_cosmologies_list()
     if dataset == "TEST":
         return test_cosmologies_list()
     if dataset == "FULL":
