@@ -44,7 +44,11 @@ def num_cosmologies(dataset):
         return 4
     if dataset == "TEST":
         return 21
-    return 45
+    if dataset[0] == "Q":
+        return 45
+    if dataset == "O1" or dataset == "Q3" or dataset == "Q5" or dataset == "Q7":
+        return 22
+    return 23
 
 
 def channels_by_config(conf):
@@ -160,42 +164,62 @@ def train_model_single_dataset(dataset, load_model=False, chkpt_path=None, val_d
 
 def train_model():
     val_data = generate_reshaped_data(val_set)
-    print("Training on Q1 data:")
-    path = train_model_single_dataset("Q1", val_data=val_data)
-    print("Training on Q2 data:")
-    path = train_model_single_dataset("Q2", load_model=True, chkpt_path=path, val_data=val_data)
-    print("Training on Q3 data:")
-    path = train_model_single_dataset("Q3", load_model=True, chkpt_path=path, val_data=val_data)
-    print("Training on Q4 data:")
-    train_model_single_dataset("Q4", load_model=True, chkpt_path=path, val_data=val_data)
+    print("Training on O1 data:")
+    path = train_model_single_dataset("O1", val_data=val_data)
+    print("Training on O2 data:")
+    path = train_model_single_dataset("O2", load_model=True, chkpt_path=path, val_data=val_data)
+    print("Training on O3 data:")
+    path = train_model_single_dataset("O3", load_model=True, chkpt_path=path, val_data=val_data)
+    print("Training on O4 data:")
+    path = train_model_single_dataset("O4", load_model=True, chkpt_path=path, val_data=val_data)
+    print("Training on O5 data:")
+    path = train_model_single_dataset("O5", load_model=True, chkpt_path=path, val_data=val_data)
+    print("Training on O6 data:")
+    path = train_model_single_dataset("O6", load_model=True, chkpt_path=path, val_data=val_data)
+    print("Training on O7 data:")
+    path = train_model_single_dataset("O7", load_model=True, chkpt_path=path, val_data=val_data)
+    print("Training on O8 data:")
+    train_model_single_dataset("O8", load_model=True, chkpt_path=path, val_data=val_data)
 
 
 def full_predictions_and_truths():
     model = build_model()
-    model.load_weights(checkpoint_path + "-Q4")
+    model.load_weights(checkpoint_path + "-O8")
 
     print("Processing Q1 data")
-    data = generate_reshaped_data("Q1")
+    data = generate_reshaped_data("O1")
     preds_q1 = model.predict(data["x"])
     truths_q1 = data["y"]
+    data = generate_reshaped_data("O2")
+    preds_q1 = np.concatenate(preds_q1, model.predict(data["x"]))
+    truths_q1 = np.concatenate(truths_q1, data["y"])
     q1 = {"p": preds_q1, "t": truths_q1}
 
     print("Processing Q2 data")
-    data = generate_reshaped_data("Q2")
+    data = generate_reshaped_data("O3")
     preds_q2 = model.predict(data["x"])
     truths_q2 = data["y"]
+    data = generate_reshaped_data("O4")
+    preds_q2 = np.concatenate(preds_q2, model.predict(data["x"]))
+    truths_q2 = np.concatenate(truths_q2, data["y"])
     q2 = {"p": preds_q2, "t": truths_q2}
 
     print("Processing Q3 data")
-    data = generate_reshaped_data("Q3")
+    data = generate_reshaped_data("O5")
     preds_q3 = model.predict(data["x"])
     truths_q3 = data["y"]
+    data = generate_reshaped_data("O6")
+    preds_q3 = np.concatenate(preds_q3, model.predict(data["x"]))
+    truths_q3 = np.concatenate(truths_q3, data["y"])
     q3 = {"p": preds_q3, "t": truths_q3}
 
     print("Processing Q4 data")
-    data = generate_reshaped_data("Q4")
+    data = generate_reshaped_data("O7")
     preds_q4 = model.predict(data["x"])
     truths_q4 = data["y"]
+    data = generate_reshaped_data("O8")
+    preds_q4 = np.concatenate(preds_q4, model.predict(data["x"]))
+    truths_q4 = np.concatenate(truths_q4, data["y"])
     q4 = {"p": preds_q4, "t": truths_q4}
 
     print("Processing TEST data")
