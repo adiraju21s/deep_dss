@@ -103,6 +103,8 @@ subprocess.call(["mkdir", metrics_dir])
 
 channels = channels_by_config(config)
 num_outputs = outputs_by_config(config)
+if num_outputs == 2 and free_bias == 0:
+    num_outputs = 1
 
 np.random.seed(170 * run_id)
 random.seed(170 * run_id)
