@@ -93,7 +93,7 @@ val_set = "TEST"
 series, config, noiseless_counts, noiseless_lensing, gaussian_counts, gaussian_lensing, free_bias, run_id = config_string_to_variables(
     config_string)
 
-checkpoint_path = "../spherenn/checkpoints/" + config_string
+checkpoint_path = "../spherenn/checkpoints/{0}/{1}".format(config_string, config_string)
 log_dir = "../spherenn/log/" + config_string
 metrics_dir = "../spherenn/metrics/" + config_string
 
