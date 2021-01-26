@@ -1052,7 +1052,6 @@ def split_count_and_lensing_maps_by_vals(sigma8s, config="g", name="map-f1z1.fit
                                            noiseless=noiseless_kg, order=order, config=config, gaussian=gaussian)
             x = np.vstack((x, kg))
         else:
-            print("Here?")
             c = split_count_maps_by_val(sigma8, name=name, path_to_output=path_to_output, field=field,
                                         nest=nest, pixarea=pixarea, density=density_m,
                                         density_0=density_m_0, covariance=covariance,
