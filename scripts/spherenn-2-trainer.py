@@ -99,8 +99,11 @@ checkpoint_path = "../spherenn/checkpoints/{0}/{1}".format(config_string, config
 log_dir = "../spherenn/log/" + config_string
 metrics_dir = "../spherenn/metrics/" + config_string
 
+subprocess.call(["rm", "-rf",  "../spherenn/checkpoints/{0}".format(config_string)])
 subprocess.call(["mkdir", checkpoint_path])
+subprocess.call(["rm", "-rf",  log_dir])
 subprocess.call(["mkdir", log_dir])
+subprocess.call(["rm", "-rf",  metrics_dir])
 subprocess.call(["mkdir", metrics_dir])
 
 channels = channels_by_config(config)
