@@ -44,9 +44,11 @@ def num_cosmologies(dataset):
         return 4
     if dataset == "TEST":
         return 21
+    if dataset == "VAL":
+        return 11
     if dataset[0] == "Q":
         return 45
-    if dataset == "O1" or dataset == "Q3" or dataset == "Q5" or dataset == "Q7":
+    if dataset == "O1" or dataset == "O3" or dataset == "O5" or dataset == "O7":
         return 22
     return 23
 
@@ -88,7 +90,7 @@ def outputs_by_config(conf):
 config_string = sys.argv[1]
 epochs = int(sys.argv[2])
 batch_size = int(sys.argv[3])
-val_set = "TEST"
+val_set = "VAL"
 
 series, config, noiseless_counts, noiseless_lensing, gaussian_counts, gaussian_lensing, free_bias, run_id = config_string_to_variables(
     config_string)
@@ -123,6 +125,8 @@ def generate_reshaped_data(dataset):
                                                    noiseless_kg=noiseless_lensing,
                                                    free_bias=free_bias, gaussian=(gaussian_counts | gaussian_lensing),
                                                    prior_low=prior_low, prior_high=prior_high)
+    if data["y"].size // (12 * (order ** 2) * num_cosmos) == 2 and num_outputs == 1:
+        data["y"] = data["y"][:, 0]
     data["x"] = np.reshape(data["x"], (12 * (order ** 2) * num_cosmos, (nside // order) ** 2, channels))
     data["y"] = np.reshape(data["y"], (12 * (order ** 2) * num_cosmos, 1, num_outputs))
     return data

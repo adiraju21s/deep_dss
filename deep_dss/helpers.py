@@ -287,6 +287,16 @@ def test_cosmologies_list():
                      0.5735, 0.997, 0.878, 0.507, 0.8115])
 
 
+def val_cosmologies_list():
+    """
+    Return the list of $\\sigma_8$ values used in validation
+    :return: A numpy array of 11 $\\sigma_8$ values
+    """
+    return np.array([1.144, 0.6855, 1.116, 1.0565,
+                     0.9305, 0.5665, 0.871, 1.2,
+                     0.5735, 0.878, 0.8115])
+
+
 def cov_full_cosmologies_list():
     """
     Return the list of all 200 IDs used for covariance.
@@ -367,6 +377,8 @@ def cosmologies_list(dataset):
         return o8_cosmologies_list()
     if dataset == "TEST":
         return test_cosmologies_list()
+    if dataset == "VAL":
+        return val_cosmologies_list()
     if dataset == "FULL":
         return full_cosmologies_list()
     if dataset == "TRAINLITE":
