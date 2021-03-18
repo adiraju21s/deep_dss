@@ -99,11 +99,11 @@ checkpoint_path = "../spherenn/checkpoints/{0}/{1}".format(config_string, config
 log_dir = "../spherenn/log/" + config_string
 metrics_dir = "../spherenn/metrics/" + config_string
 
-subprocess.call(["rm", "-rf",  "../spherenn/checkpoints/{0}".format(config_string)])
-subprocess.call(["mkdir", checkpoint_path])
-subprocess.call(["rm", "-rf",  log_dir])
+subprocess.call(["rm", "-rf", "../spherenn/checkpoints/{0}".format(config_string)])
+subprocess.call(["mkdir", "../spherenn/checkpoints/{0}".format(config_string)])
+subprocess.call(["rm", "-rf", log_dir])
 subprocess.call(["mkdir", log_dir])
-subprocess.call(["rm", "-rf",  metrics_dir])
+subprocess.call(["rm", "-rf", metrics_dir])
 subprocess.call(["mkdir", metrics_dir])
 
 channels = channels_by_config(config)
@@ -111,9 +111,9 @@ num_outputs = outputs_by_config(config)
 if num_outputs == 2 and free_bias == 0:
     num_outputs = 1
 
-np.random.seed(170 * run_id)
-random.seed(170 * run_id)
-tf.random.set_seed(170 * run_id)
+np.random.seed(17 * run_id)
+random.seed(17 * run_id)
+tf.random.set_seed(17 * run_id)
 
 nside = 1024
 order = 2
@@ -128,7 +128,7 @@ def generate_reshaped_data(dataset):
                                                    noiseless_kg=noiseless_lensing,
                                                    free_bias=free_bias, gaussian=(gaussian_counts | gaussian_lensing),
                                                    prior_low=prior_low, prior_high=prior_high)
-    if data["y"].size // (12 * (order ** 2) * num_cosmos) == 2 and num_outputs == 1:
+    if data["y"].shape[1] == 2 and num_outputs == 1:
         data["y"] = data["y"][:, 0]
     data["x"] = np.reshape(data["x"], (12 * (order ** 2) * num_cosmos, (nside // order) ** 2, channels))
     data["y"] = np.reshape(data["y"], (12 * (order ** 2) * num_cosmos, 1, num_outputs))
@@ -138,16 +138,28 @@ def generate_reshaped_data(dataset):
 def build_model():
     return keras.Sequential([
         keras.Input(shape=(262144, channels)),
-        keras.layers.Conv1D(64, 4, strides=4, activation='relu'),
-        keras.layers.Conv1D(128, 4, strides=4, activation='relu'),
-        keras.layers.Conv1D(256, 4, strides=4, activation='relu'),
-        keras.layers.Conv1D(256, 4, strides=4, activation='relu'),
-        keras.layers.Conv1D(256, 4, strides=4, activation='relu'),
-        keras.layers.Conv1D(256, 4, strides=4, activation='relu'),
-        keras.layers.Conv1D(256, 4, strides=4, activation='relu'),
-        keras.layers.Conv1D(256, 4, strides=4, activation='relu'),
+        keras.layers.Conv1D(64 * num_outputs, 4, strides=4, activation='relu'),
+        keras.layers.Conv1D(128 * num_outputs, 4, strides=4, activation='relu'),
+        keras.layers.Conv1D(256 * num_outputs, 4, strides=4, activation='relu'),
+        keras.layers.Conv1D(256 * num_outputs, 4, strides=4, activation='relu'),
+        keras.layers.Conv1D(256 * num_outputs, 4, strides=4, activation='relu'),
+        keras.layers.Conv1D(256 * num_outputs, 4, strides=4, activation='relu'),
+        keras.layers.Conv1D(256 * num_outputs, 4, strides=4, activation='relu'),
+        keras.layers.Conv1D(256 * num_outputs, 4, strides=4, activation='relu'),
         keras.layers.Conv1D(num_outputs, 4, strides=4, activation='relu'),
     ])
+
+
+def combined_loss_function(y_true, y_pred):
+    return tf.keras.losses.MAE(y_true, y_pred)
+
+
+def sigma8_loss(y_true, y_pred):
+    return tf.keras.losses.MAE(y_true[:, 0], y_pred[:, 0])
+
+
+def bias_loss(y_true, y_pred):
+    return tf.keras.losses.MAE(y_true[:, 1], y_pred[:, 1])
 
 
 def train_model_single_dataset(dataset, load_model=False, chkpt_path=None, val_data=None):
@@ -158,16 +170,22 @@ def train_model_single_dataset(dataset, load_model=False, chkpt_path=None, val_d
     model = build_model()
     if load_model:
         model.load_weights(chkpt_path)
-    model.compile(optimizer="adam", loss=tf.keras.losses.MAE, metrics=[])
+
+    if num_outputs == 1:
+        model.compile(optimizer="adam", loss=tf.keras.losses.MAE, metrics=[])
+    else:
+        model.compile(optimizer="adam", loss=combined_loss_function, metrics=[sigma8_loss, bias_loss])
 
     tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
-    cp_callback = tf.keras.callbacks.ModelCheckpoint(filepath=checkpoint_path + "-{}".format(dataset),
+    cp_callback = tf.keras.callbacks.ModelCheckpoint(filepath=checkpoint_path,
                                                      monitor="val_loss", save_weights_only=True, save_best_only=True,
                                                      verbose=1, mode="min")
-
+    stop_callback = tf.keras.callbacks.EarlyStopping(monitor='loss', patience=10, mode="min")
+    lr_callback = tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.2, patience=5, verbose=0,
+                                                       mode="min", cooldown=0, min_lr=0)
     model.fit(x=train_data["x"], y=train_data["y"], batch_size=batch_size, epochs=epochs,
               validation_data=(val_data["x"], val_data["y"]),
-              callbacks=[tensorboard_callback, cp_callback])
+              callbacks=[tensorboard_callback, cp_callback, stop_callback, lr_callback])
     return checkpoint_path + "-{0}".format(dataset)
 
 
@@ -176,24 +194,25 @@ def train_model():
     print("Training on O1 data:")
     path = train_model_single_dataset("O1", val_data=val_data)
     print("Training on O2 data:")
-    path = train_model_single_dataset("O2", load_model=True, chkpt_path=path, val_data=val_data)
+    path = train_model_single_dataset("O2", load_model=True, chkpt_path=checkpoint_path, val_data=val_data)
     print("Training on O3 data:")
-    path = train_model_single_dataset("O3", load_model=True, chkpt_path=path, val_data=val_data)
+    path = train_model_single_dataset("O3", load_model=True, chkpt_path=checkpoint_path, val_data=val_data)
     print("Training on O4 data:")
-    path = train_model_single_dataset("O4", load_model=True, chkpt_path=path, val_data=val_data)
+    path = train_model_single_dataset("O4", load_model=True, chkpt_path=checkpoint_path, val_data=val_data)
     print("Training on O5 data:")
-    path = train_model_single_dataset("O5", load_model=True, chkpt_path=path, val_data=val_data)
+    path = train_model_single_dataset("O5", load_model=True, chkpt_path=checkpoint_path, val_data=val_data)
     print("Training on O6 data:")
-    path = train_model_single_dataset("O6", load_model=True, chkpt_path=path, val_data=val_data)
+    path = train_model_single_dataset("O6", load_model=True, chkpt_path=checkpoint_path, val_data=val_data)
     print("Training on O7 data:")
-    path = train_model_single_dataset("O7", load_model=True, chkpt_path=path, val_data=val_data)
+    path = train_model_single_dataset("O7", load_model=True, chkpt_path=checkpoint_path, val_data=val_data)
     print("Training on O8 data:")
-    train_model_single_dataset("O8", load_model=True, chkpt_path=path, val_data=val_data)
+    train_model_single_dataset("O8", load_model=True, chkpt_path=checkpoint_path, val_data=val_data)
 
 
 def full_predictions_and_truths():
     model = build_model()
-    model.load_weights(checkpoint_path + "-O8")
+    # model.load_weights(checkpoint_path + "-O8")
+    model.load_weights(checkpoint_path)
 
     print("Processing Q1 data")
     data = generate_reshaped_data("O1")
@@ -249,13 +268,31 @@ def load_predictions():
 
 
 def print_losses(full_results):
-    with open("{0}/{1}-losses.txt".format(metrics_dir, config_string), "w") as logfile:
-        print("Average Q1 Loss:", np.average(np.abs(full_results["Q1"]["p"] - full_results["Q1"]["t"])), file=logfile)
-        print("Average Q2 Loss:", np.average(np.abs(full_results["Q2"]["p"] - full_results["Q2"]["t"])), file=logfile)
-        print("Average Q3 Loss:", np.average(np.abs(full_results["Q3"]["p"] - full_results["Q3"]["t"])), file=logfile)
-        print("Average Q4 Loss:", np.average(np.abs(full_results["Q4"]["p"] - full_results["Q4"]["t"])), file=logfile)
-        print("Average TEST Loss:", np.average(np.abs(full_results["TEST"]["p"] - full_results["TEST"]["t"])),
-              file=logfile)
+    if num_outputs == 1:
+        with open("{0}/{1}-losses.txt".format(metrics_dir, config_string), "w") as logfile:
+            print("Average Q1 Loss:", np.average(np.abs(full_results["Q1"]["p"] - full_results["Q1"]["t"])),
+                  file=logfile)
+            print("Average Q2 Loss:", np.average(np.abs(full_results["Q2"]["p"] - full_results["Q2"]["t"])),
+                  file=logfile)
+            print("Average Q3 Loss:", np.average(np.abs(full_results["Q3"]["p"] - full_results["Q3"]["t"])),
+                  file=logfile)
+            print("Average Q4 Loss:", np.average(np.abs(full_results["Q4"]["p"] - full_results["Q4"]["t"])),
+                  file=logfile)
+            print("Average TEST Loss:", np.average(np.abs(full_results["TEST"]["p"] - full_results["TEST"]["t"])),
+                  file=logfile)
+    else:
+        with open("{0}/{1}-losses.txt".format(metrics_dir, config_string), "w") as logfile:
+            print("Average Q1 Loss:", np.average(np.abs(full_results["Q1"]["p"] - full_results["Q1"]["t"]), axis=0),
+                  file=logfile)
+            print("Average Q2 Loss:", np.average(np.abs(full_results["Q2"]["p"] - full_results["Q2"]["t"]), axis=0),
+                  file=logfile)
+            print("Average Q3 Loss:", np.average(np.abs(full_results["Q3"]["p"] - full_results["Q3"]["t"]), axis=0),
+                  file=logfile)
+            print("Average Q4 Loss:", np.average(np.abs(full_results["Q4"]["p"] - full_results["Q4"]["t"]), axis=0),
+                  file=logfile)
+            print("Average TEST Loss:",
+                  np.average(np.abs(full_results["TEST"]["p"] - full_results["TEST"]["t"]), axis=0),
+                  file=logfile)
 
 
 def bias_and_variance_by_cosmo(full_results):
